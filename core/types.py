@@ -3,6 +3,11 @@ Core types for JPEG2000 processing.
 
 This module defines the common types and enumerations used
 throughout the JPEG2000 workflow.
+
+Developer Note: 
+    IMPORTANT NOTATION CONVENTION - Compression ratios in this project use the format N:1 
+    (e.g., "4:1" or simply "4.0"), while BnF documentation uses 1:N format.
+    See docs/NOTATION.md for detailed explanation.
 """
 
 from enum import Enum, auto
