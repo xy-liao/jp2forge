@@ -1,8 +1,8 @@
 # JP2Forge: JPEG2000 Processing Tool
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/YOUR_USERNAME/jp2forge) [![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-blue.svg)](https://github.com/YOUR_USERNAME/jp2forge/releases/tag/v0.9.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge) [![Version: 0.9.1](https://img.shields.io/badge/Version-0.9.1-blue.svg)](https://github.com/xy-liao/jp2forge/releases/tag/v0.9.1)
 
-**Current Status: Release** - JP2Forge 0.9.0 is now available! See the [Release Notes](docs/RELEASE_NOTES_0.9.0.md) for details.
+**Current Status: Release** - JP2Forge 0.9.1 is now available! See the [Release Notes](docs/RELEASE_NOTES_0.9.1.md) for details.
 
 JP2Forge is a comprehensive solution for converting images to JPEG2000 format with support for both standard and BnF (Bibliothèque nationale de France) compliant workflows. This project implements JPEG2000 processing according to technical specifications published by the Bibliothèque nationale de France (BnF) in their "Référentiel de format de fichier image v2" (2015). This implementation is provided for educational and training purposes to demonstrate standards implementation. All BnF-specific parameters are based on publicly available technical documentation with proper attribution to BnF as the source of these specifications.
 
