@@ -81,6 +81,11 @@ coverage.xml
 
 # Test images and outputs (comment out if you want to include sample images)
 # images/
+input_dir/*.tif
+input_dir/*.tiff
+input_dir/*.jpg
+input_dir/*.jpeg
+input_dir/*.jp2
 output_dir/*
 !output_dir/README.md
 
@@ -109,6 +114,7 @@ jp2_test/
 
 # Logs
 *.log
+multipage_conversion.log
 
 # IDEs and editors
 *.swp
@@ -132,9 +138,11 @@ jp2_test/
 *.bmp
 
 # Output directories
-# Uncomment if you want to exclude specific directories
-# /output/
-# /reports/
+output_dir/multipage_test/
+output_dir/test_bnf/
+output_dir/test_memory_limit/
+output_dir/test_params/
+output_dir/test_run/
 
 # Specific large directories
 # Uncomment if needed
@@ -149,3 +157,10 @@ sorted-full.txt
 sorted-req.txt
 requirements-full.txt
 *.bak*
+fix_style.py
+
+# Temporary and test files
+CHANGELOG.md.bak.*
+README.md.bak.*
+prepare_for_publish.py
+multipage_conversion.log
