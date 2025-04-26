@@ -1,0 +1,18 @@
+pillow>=9.0.0
+numpy>=1.20.0
+psutil>=5.8.0
+structlog>=21.1.0  # Enhanced structured logging
+lxml>=4.9.0        # XML processing for metadata
+pyyaml>=6.0        # YAML configuration support
+jpylyzer>=2.2.0    # JPEG2000 validation tool
+
+# Optional but recommended for optimal functionality
+ipython>=8.0.0     # Enhanced REPL experience for debugging
+pytest>=7.0.0      # Testing framework
+
+# Note: The ExifTool CLI executable is required for metadata handling
+# Install it separately following your OS's installation method
+
+# Recommended system dependencies:
+# ExifTool: essential for metadata operations
+# Kakadu: high-performance JPEG2000 library (optional)

@@ -1,0 +1,141 @@
+# macOS system files
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Test images and outputs (comment out if you want to include sample images)
+# images/
+output/*
+!output/README.md
+
+# Benchmark results
+benchmark_output/
+benchmark_results/
+benchmark_reports/
+benchmark/output/config_*
+benchmark/results/*.json
+benchmark/results/*.png
+benchmark/reports/summary_report.md
+
+# Reports directory - exclude generated reports but keep structure
+reports/*
+!reports/README.md
+
+# Virtual environment
+venv/
+env/
+ENV/
+jp2_test/
+
+# Logs
+*.log
+
+# IDEs and editors
+*.swp
+*.swo
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Input/output files
+*.jp2
+*.tif
+*.tiff
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+
+# Output directories
+# Uncomment if you want to exclude specific directories
+# /output/
+# /reports/
+
+# Specific large directories
+# Uncomment if needed
+# /dataset/
+
+# Copyrighted or limited-use images
+images/UBLEAL_*
+benchmark/output/std_UBLEAL_*
