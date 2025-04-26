@@ -46,12 +46,22 @@ class BnFCompressionRatio:
     de France) specifications in their "Référentiel de format de fichier image v2" (2015).
     This implementation is provided for educational purposes.
 
+    Note on notation: BnF documentation uses the format "1:4", which means "one part compressed
+    to four parts original". However, in this code we use the more common image processing 
+    notation of N:1 (e.g. "4.0" or "4:1"), which means "four parts original to one part 
+    compressed". The numerical values (4.0, 6.0, 16.0) represent the ratio of original size 
+    to compressed size.
+
     See: https://www.bnf.fr/sites/default/files/2018-11/ref_num_fichier_image_v2.pdf
     """
-    SPECIALIZED = 4.0  # 1:4 ratio for specialized documents (prints, photographs, etc.)
-    EXCEPTIONAL = 4.0  # 1:4 ratio for exceptional documents (manuscripts with illuminations, etc.)
-    PRINTED = 6.0      # 1:6 ratio for printed documents
-    TRANSPARENT = 16.0  # 1:16 ratio for transparent documents in grayscale
+    # BnF notation: 1:4, our code uses 4.0 (4:1) to represent the same ratio
+    SPECIALIZED = 4.0  # For specialized documents (prints, photographs, etc.)
+    # BnF notation: 1:4, our code uses 4.0 (4:1) to represent the same ratio
+    EXCEPTIONAL = 4.0  # For exceptional documents (manuscripts with illuminations, etc.)
+    # BnF notation: 1:6, our code uses 6.0 (6:1) to represent the same ratio
+    PRINTED = 6.0      # For printed documents
+    # BnF notation: 1:16, our code uses 16.0 (16:1) to represent the same ratio
+    TRANSPARENT = 16.0  # For transparent documents in grayscale
 
     @staticmethod
     def get_ratio_for_type(doc_type: DocumentType) -> float:

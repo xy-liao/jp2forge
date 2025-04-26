@@ -212,6 +212,8 @@ python -m cli.workflow input_dir/ output_dir/ --bnf-compliant
 
 JP2Forge implements the following BnF specifications:
 
+> **Note on Compression Ratio Notation**: BnF documentation uses the notation "1:4" (one part compressed to four parts original), while JP2Forge internally uses "4.0" or "4:1" (four parts original to one part compressed) to represent the same compression ratio. The latter notation is more common in image processing contexts.
+
 #### Core Requirements (Fully Supported)
 - **Compression Parameters**: Proper 9-7 floating wavelet transform (ICT)
 - **BnF-specific Compression Ratios**: 4:1 (photograph/heritage), 6:1 (color), 16:1 (grayscale)
