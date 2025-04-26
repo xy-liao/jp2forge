@@ -214,7 +214,7 @@ JP2Forge implements the following BnF specifications:
 
 #### Core Requirements (Fully Supported)
 - **Compression Parameters**: Proper 9-7 floating wavelet transform (ICT)
-- **BnF-specific Compression Ratios**: 1:4 (photograph/heritage), 1:6 (color), 1:16 (grayscale)
+- **BnF-specific Compression Ratios**: 4:1 (photograph/heritage), 6:1 (color), 16:1 (grayscale)
 - **Tolerance Setting**: Configurable, default 5% as per BnF specs
 - **Resolution Levels**: 10 levels as required
 - **Progression Order**: RPCL as specified by BnF
@@ -238,9 +238,9 @@ JP2Forge implements the following BnF specifications:
 
 ### BnF Document Types and Ratios
 
-- `photograph` and `heritage_document`: 1:4 ratio
-- `color`: 1:6 ratio
-- `grayscale`: 1:16 ratio
+- `photograph` and `heritage_document`: 4:1 ratio
+- `color`: 6:1 ratio
+- `grayscale`: 16:1 ratio
 
 ### BnF Metadata
 
@@ -683,10 +683,10 @@ JP2Forge is an independent implementation of the JPEG2000 standard with BnF comp
 
 - **Compression**: Irreversible (9-7 floating transform, ICT)
 - **Compression Ratios**:
-  - Specialized documents: 1:4
-  - Exceptional documents: 1:4
-  - Standard printed documents: 1:6
-  - Grayscale transparent documents: 1:16
+  - Specialized documents: 4:1
+  - Exceptional documents: 4:1
+  - Standard printed documents: 6:1
+  - Grayscale transparent documents: 16:1
 - **Tolerance**: 5% (configurable)
 - **Fallback**: Lossless compression (5-3 integer transform, RCT) for files outside tolerance
 - **Resolution Levels**: 10
