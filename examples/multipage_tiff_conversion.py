@@ -46,9 +46,14 @@ def run_basic_conversion(input_path, output_path):
     """Run basic multi-page TIFF conversion."""
     print("Running basic multi-page TIFF conversion...")
     
+    # Use existing reports directory
+    reports_path = os.path.join(os.path.dirname(os.path.dirname(output_path)), "reports")
+    os.makedirs(reports_path, exist_ok=True)
+    
     # Create a basic configuration
     config = WorkflowConfig(
         output_dir=output_path,
+        report_dir=reports_path,  # Add required report_dir parameter
         compression_mode=CompressionMode.SUPERVISED,
         document_type=DocumentType.PHOTOGRAPH,
         quality_threshold=40.0,
@@ -67,9 +72,14 @@ def run_bnf_conversion(input_path, output_path):
     """Run BnF-compliant multi-page TIFF conversion."""
     print("Running BnF-compliant multi-page TIFF conversion...")
     
+    # Use existing reports directory
+    reports_path = os.path.join(os.path.dirname(os.path.dirname(output_path)), "reports")
+    os.makedirs(reports_path, exist_ok=True)
+    
     # Create BnF-compliant configuration
     config = WorkflowConfig(
         output_dir=output_path,
+        report_dir=reports_path,  # Add required report_dir parameter
         compression_mode=CompressionMode.BNF_COMPLIANT,
         document_type=DocumentType.HERITAGE_DOCUMENT,  # Uses 1:4 ratio for BnF
         bnf_compliant=True,
@@ -91,9 +101,14 @@ def run_lossless_conversion(input_path, output_path):
     """Run lossless multi-page TIFF conversion."""
     print("Running lossless multi-page TIFF conversion...")
     
+    # Use existing reports directory
+    reports_path = os.path.join(os.path.dirname(os.path.dirname(output_path)), "reports")
+    os.makedirs(reports_path, exist_ok=True)
+    
     # Create lossless configuration
     config = WorkflowConfig(
         output_dir=output_path,
+        report_dir=reports_path,  # Add required report_dir parameter
         compression_mode=CompressionMode.LOSSLESS,
         document_type=DocumentType.PHOTOGRAPH,
         num_resolutions=8,  # More resolution levels for better zooming
@@ -113,9 +128,14 @@ def run_memory_optimized_conversion(input_path, output_path):
     """Run memory-optimized multi-page TIFF conversion for large files."""
     print("Running memory-optimized multi-page TIFF conversion...")
     
+    # Use existing reports directory
+    reports_path = os.path.join(os.path.dirname(os.path.dirname(output_path)), "reports")
+    os.makedirs(reports_path, exist_ok=True)
+    
     # Create memory-optimized configuration
     config = WorkflowConfig(
         output_dir=output_path,
+        report_dir=reports_path,  # Add required report_dir parameter
         compression_mode=CompressionMode.SUPERVISED,
         document_type=DocumentType.PHOTOGRAPH,
         memory_limit_mb=1024,      # Limit memory usage to 1GB
@@ -135,6 +155,10 @@ def run_metadata_conversion(input_path, output_path):
     """Run multi-page TIFF conversion with custom metadata."""
     print("Running multi-page TIFF conversion with custom metadata...")
     
+    # Use existing reports directory
+    reports_path = os.path.join(os.path.dirname(os.path.dirname(output_path)), "reports")
+    os.makedirs(reports_path, exist_ok=True)
+    
     # Example metadata (similar to BnF format)
     metadata = {
         "dcterms:isPartOf": "TEST_DOCUMENT",
@@ -150,6 +174,7 @@ def run_metadata_conversion(input_path, output_path):
     # Create configuration with metadata
     config = WorkflowConfig(
         output_dir=output_path,
+        report_dir=reports_path,  # Add required report_dir parameter
         compression_mode=CompressionMode.SUPERVISED,
         document_type=DocumentType.PHOTOGRAPH,
         quality_threshold=40.0

@@ -16,7 +16,7 @@ JP2Forge 0.9.1 is a feature update that adds support for multi-page TIFF process
 - New example script demonstrating various multi-page TIFF processing options
 
 ### Changed
-- Renamed directory paths from "images/" to "input_dir/" and "output_dir/" to "output_dir/" for better alignment with documentation examples
+- Renamed directory paths from "images/" to "input_dir/" and "output/" to "output_dir/" for better alignment with documentation examples
 - Updated cleanup script to handle both old and new directory structures for backward compatibility
 - Enhanced documentation with multi-page TIFF processing guide
 

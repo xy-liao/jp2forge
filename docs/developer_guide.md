@@ -273,7 +273,7 @@ from core.types import WorkflowConfig
 
 # Create a workflow configuration
 config = WorkflowConfig(
-    output_dir='output/',
+    output_dir='output_dir/',
     report_dir='reports/'
 )
 
@@ -301,7 +301,7 @@ from core.types import WorkflowConfig, DocumentType, CompressionMode
 
 # Create configuration
 config = WorkflowConfig(
-    output_dir='output/',
+    output_dir='output_dir/',
     document_type=DocumentType.PHOTOGRAPH,
     compression_mode=CompressionMode.SUPERVISED
 )
@@ -326,7 +326,7 @@ from core.types import WorkflowConfig, ProcessingMode
 
 # Create configuration
 config = WorkflowConfig(
-    output_dir='output/',
+    output_dir='output_dir/',
     processing_mode=ProcessingMode.PARALLEL,
     max_workers=4,
     adaptive_workers=True
@@ -489,7 +489,7 @@ from core.types import WorkflowConfig
 
 # Create BnF-compliant configuration
 config = WorkflowConfig(
-    output_dir='output/',
+    output_dir='output_dir/',
     document_type=DocumentType.PHOTOGRAPH,  # Sets 1:4 ratio
     bnf_compliant=True,
     compression_ratio_tolerance=0.05  # 5% tolerance
@@ -544,7 +544,7 @@ kakadu = KakaduTool(executable_path='/path/to/kdu_compress')
 
 # Configure workflow
 config = WorkflowConfig(
-    output_dir='output/',
+    output_dir='output_dir/',
     bnf_compliant=True,
     use_kakadu=True,
     kakadu_tool=kakadu

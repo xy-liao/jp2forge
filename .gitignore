@@ -81,6 +81,10 @@ coverage.xml
 
 # Test images and outputs (comment out if you want to include sample images)
 # images/
+output_dir/*
+!output_dir/README.md
+
+# Legacy output directory - to be removed
 output/*
 !output/README.md
 

@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.9.1] - 2025-04-24
 
 ### Changed
-- Renamed directory paths from "images/" to "input_dir/" and "output_dir/" to "output_dir/" for better alignment with documentation examples
+- Renamed directory paths from "images/" to "input_dir/" and "output/" to "output_dir/" for better alignment with documentation examples
 - Updated cleanup script to handle both old and new directory structures for backward compatibility
 
 ## [0.9.0] - 2025-04-19
