@@ -143,3 +143,9 @@ jp2_test/
 # Copyrighted or limited-use images
 images/UBLEAL_*
 benchmark/output/std_UBLEAL_*
+
+# Temporary files
+sorted-full.txt
+sorted-req.txt
+requirements-full.txt
+*.bak*

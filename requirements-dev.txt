@@ -1,0 +1,19 @@
+# Development dependencies for JP2Forge
+# These are not required for using the library but are useful for development
+
+# Code quality tools
+flake8>=7.2.0        # Code linting
+autopep8>=2.3.0      # Code formatting
+pycode-similar>=1.4  # Code similarity detection
+
+# Documentation and publishing
+twine>=6.0.0         # Package publishing
+build>=1.2.0         # Package building
+
+# Testing and debugging
+pytest>=7.0.0        # Testing framework
+ipython>=8.0.0       # Enhanced REPL experience for debugging
+
+# Data analysis and visualization (for benchmarking)
+matplotlib>=3.9.0    # Plotting library
+pandas>=2.2.0        # Data analysis library
