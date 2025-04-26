@@ -14,7 +14,7 @@ setup(
     name="jp2forge",
     version="0.9.1",
     author="xy-liao",
-    # Removed personal email
+    author_email="contact@example.com",  # Replace with your actual email
     description="A comprehensive JPEG2000 processing tool with BnF compatibility",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -31,7 +31,7 @@ setup(
         "Intended Audience :: Science/Research",
         "Intended Audience :: Education",
     ],
-    packages=find_packages(),
+    packages=find_packages(exclude=["benchmark", "input_dir", "output", "output_dir", "reports"]),
     install_requires=[
         "numpy",
         "pillow>=9.0.0",
@@ -40,4 +40,9 @@ setup(
         "pyyaml",
     ],
     python_requires=">=3.8",
+    entry_points={
+        "console_scripts": [
+            "jp2forge=cli.workflow:main",
+        ],
+    },
 )

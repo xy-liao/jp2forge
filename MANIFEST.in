@@ -1,0 +1,18 @@
+include LICENSE
+include README.md
+include CHANGELOG.md
+include AUTHORS
+include CONTRIBUTING.md
+include jp2forge-workflow.md
+include requirements.txt
+include requirements-dev.txt
+
+recursive-include docs *
+recursive-include examples *
+
+# Exclude unnecessary directories
+prune benchmark
+prune input_dir
+prune output
+prune output_dir
+prune reports
