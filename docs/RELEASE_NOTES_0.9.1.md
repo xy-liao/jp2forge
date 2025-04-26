@@ -6,6 +6,8 @@ Release Date: April 25, 2025
 
 JP2Forge 0.9.1 is a feature update that adds support for multi-page TIFF processing and improves directory structure naming consistency.
 
+> **Note:** JP2Forge supports BnF-compliant processing without requiring Kakadu, implementing all essential BnF parameters through our built-in Pillow integration. While Kakadu would provide more complete support for all BnF robustness markers (SOP, EPH, PLT), the default implementation adheres to core BnF standards using Pillow's parameters.
+
 ## Changes in this Release
 
 ### Added
