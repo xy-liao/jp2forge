@@ -152,6 +152,51 @@ To display all available options:
 python -m cli.workflow --help
 ```
 
+### 3.4 Custom Directory Paths
+
+JP2Forge supports fully customizable input, output, and report directories:
+
+#### Basic Directory Customization
+
+```bash
+# Process images from a custom input directory to a custom output directory
+python -m cli.workflow /path/to/my/images/ /path/to/my/jp2_files/
+```
+
+#### Custom Report Directory
+
+By default, reports are saved to the "reports" directory. Use `--report-dir` to specify a custom location:
+
+```bash
+python -m cli.workflow /path/to/my/images/ /path/to/my/jp2_files/ \
+  --report-dir /path/to/my/reports/
+```
+
+#### Directory Organization Best Practices
+
+For large projects or multiple datasets, consider organizing your directories by project:
+
+```bash
+project_a/
+  ├── input/
+  ├── output/
+  └── reports/
+
+project_b/
+  ├── input/
+  ├── output/
+  └── reports/
+```
+
+#### Verification
+
+After processing completes, JP2Forge will show the paths where files were saved:
+- Converted images: in the specified output directory
+- Reports: in the specified report directory
+- Validation results: in the report directory
+
+You can verify that custom directories are being used by checking the report files generated, which will include the paths used in the processing configuration.
+
 ## 4. Configuration Options
 
 ### 4.1 Command-Line Configuration
