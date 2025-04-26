@@ -8,4 +8,4 @@ This is an independent implementation that relies on either Pillow or Kakadu (if
 for actual JPEG2000 encoding/decoding operations.
 """
 
-__version__ = "0.9.0-beta"
+__version__ = "0.9.1"
