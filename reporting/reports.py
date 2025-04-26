@@ -17,16 +17,16 @@ logger = logging.getLogger(__name__)
 
 class LossAnalysisReport:
     """Generates detailed reports for pixel loss analysis."""
-    
+
     def __init__(self, report_dir: str):
         """Initialize the report generator.
-        
+
         Args:
             report_dir: Directory for storing reports
         """
         self.report_dir = report_dir
         os.makedirs(report_dir, exist_ok=True)
-    
+
     def generate_report(
         self,
         input_file: str,
@@ -36,14 +36,14 @@ class LossAnalysisReport:
         jpylyzer_dir: Optional[str] = None
     ) -> str:
         """Generate a detailed analysis report.
-        
+
         Args:
             input_file: Path to original image
             output_file: Path to converted image
             analysis_results: Results from pixel loss analysis
             metadata: Additional metadata for the report
             jpylyzer_dir: Directory where JPylyzer JSON reports are stored (optional)
-            
+
         Returns:
             str: Path to generated report
         """
@@ -57,13 +57,13 @@ class LossAnalysisReport:
                     "quality_passed": "no",
                     "error": "Invalid analysis results format"
                 }
-            
+
             # Ensure quality_passed is present and a string
             if "quality_passed" not in analysis_results:
                 analysis_results["quality_passed"] = "no"
             elif not isinstance(analysis_results["quality_passed"], str):
                 analysis_results["quality_passed"] = "yes" if analysis_results["quality_passed"] else "no"
-            
+
             report_data = {
                 "timestamp": datetime.now().isoformat(),
                 "input_file": os.path.basename(input_file),
@@ -71,13 +71,13 @@ class LossAnalysisReport:
                 "analysis_results": analysis_results,
                 "metadata": metadata
             }
-            
+
             # Add summary section
             report_data["summary"] = self._generate_summary(
                 analysis_results,
                 metadata
             )
-            
+
             # Try to include JPylyzer results if available
             if jpylyzer_dir:
                 jp2_name = Path(output_file).stem
@@ -88,56 +88,56 @@ class LossAnalysisReport:
                             report_data['jpylyzer'] = json.load(f)
                     except Exception as e:
                         report_data['jpylyzer'] = {"error": f"Failed to load JPylyzer report: {e}"}
-            
+
             # Save report
             report_name = (
                 f"loss_analysis_{os.path.basename(input_file)}.json"
             )
             report_path = os.path.join(self.report_dir, report_name)
-            
+
             with open(report_path, 'w') as f:
                 json.dump(report_data, f, indent=4)
-            
+
             logger.info(f"Generated analysis report: {report_path}")
             return report_path
-            
+
         except Exception as e:
             logger.error(f"Error generating report: {str(e)}")
             return ""
-    
+
     def _generate_summary(
         self,
         analysis_results: Dict[str, Any],
         metadata: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Generate summary section for the report.
-        
+
         Args:
             analysis_results: Results from pixel loss analysis
             metadata: Additional metadata for the report
-            
+
         Returns:
             Dict containing summary information
         """
         # Ensure quality_passed is converted consistently
         quality_passed = str(analysis_results.get("quality_passed", "no")).lower() == "yes"
-        
+
         # Get metrics with defaults
         try:
             psnr = float(analysis_results.get("psnr", 0.0))
         except (ValueError, TypeError):
             psnr = 0.0
-            
+
         try:
             ssim = float(analysis_results.get("ssim", 0.0))
         except (ValueError, TypeError):
             ssim = 0.0
-            
+
         try:
             mse = float(analysis_results.get("mse", float('inf')))
         except (ValueError, TypeError):
             mse = float('inf')
-        
+
         return {
             "quality_assessment": (
                 "PASSED" if quality_passed else "FAILED"
@@ -158,7 +158,7 @@ class LossAnalysisReport:
                 mse
             )
         }
-    
+
     def _get_recommendations(
         self,
         quality_passed: bool,
@@ -167,18 +167,18 @@ class LossAnalysisReport:
         mse: float
     ) -> list:
         """Generate recommendations based on analysis results.
-        
+
         Args:
             quality_passed: Whether quality checks passed
             psnr: Peak Signal-to-Noise Ratio
             ssim: Structural Similarity Index
             mse: Mean Square Error
-            
+
         Returns:
             List of recommendations
         """
         recommendations = []
-        
+
         if not quality_passed:
             if psnr < 40.0:
                 recommendations.append(
@@ -192,27 +192,27 @@ class LossAnalysisReport:
                 recommendations.append(
                     "High pixel value differences detected"
                 )
-        
+
         if not recommendations:
             recommendations.append(
                 "No quality issues detected"
             )
-        
+
         return recommendations
 
 
 class WorkflowReport:
     """Generates reports for the entire workflow."""
-    
+
     def __init__(self, report_dir: str):
         """Initialize the report generator.
-        
+
         Args:
             report_dir: Directory for storing reports
         """
         self.report_dir = report_dir
         os.makedirs(report_dir, exist_ok=True)
-    
+
     def generate_summary_report(
         self,
         results: Dict[str, Any],
@@ -236,41 +236,41 @@ class WorkflowReport:
                 },
                 "processed_files": results.get("processed_files", [])
             }
-            
+
             # Save JSON report
             json_report_path = os.path.join(
                 self.report_dir,
                 f"workflow_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
             )
-            
+
             with open(json_report_path, 'w') as f:
                 json.dump(summary_data, f, indent=4)
-            
+
             # Generate Markdown report
             markdown_report = self._generate_markdown_report(summary_data, jpylyzer_dir)
             md_report_path = os.path.join(
                 self.report_dir,
                 f"workflow_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
             )
-            
+
             with open(md_report_path, 'w') as f:
                 f.write(markdown_report)
-            
+
             logger.info(f"Generated summary reports: {json_report_path}, {md_report_path}")
             return md_report_path
-            
+
         except Exception as e:
             logger.error(f"Error generating summary report: {str(e)}")
             return ""
-    
+
     def _generate_markdown_report(self, summary_data: Dict[str, Any], jpylyzer_dir: Optional[str] = None) -> str:
         """Generate a Markdown report from summary data, including JPylyzer validation info in block format."""
         report = []
         timestamp = datetime.fromisoformat(summary_data["timestamp"])
-        
+
         report.append("# JPEG2000 Conversion Summary Report")
         report.append(f"Generated: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        
+
         # Overall statistics
         report.append("## Overall Statistics")
         report.append("-----------------")
@@ -281,25 +281,26 @@ class WorkflowReport:
         report.append(f"Errors: {results['error_count']}")
         report.append(f"Corrupted: {results['corrupted_count']}")
         report.append(f"Overall Status: {results['overall_status']}")
-        
+
         # Processing time
         if results["processing_time"] > 0:
             report.append(f"Total Processing Time: {results['processing_time']:.2f} seconds")
-            report.append(f"Average Processing Rate: {results['total_files'] / results['processing_time']:.2f} files/second\n")
-        
+            report.append(
+                f"Average Processing Rate: {results['total_files'] / results['processing_time']:.2f} files/second\n")
+
         # Configuration
         report.append("## Configuration")
         report.append("-----------------")
         config = summary_data["config"]
-        
+
         for key, value in config.items():
             report.append(f"{key}: {value}")
         report.append("")
-        
+
         # File details
         report.append("## Detailed Results")
         report.append("----------------")
-        
+
         # Load info_jpylyzer.json if available
         all_jpylyzer = {}
         if jpylyzer_dir:
@@ -310,7 +311,7 @@ class WorkflowReport:
                         all_jpylyzer = json.load(f)
                 except Exception:
                     all_jpylyzer = {}
-        
+
         for file_result in summary_data["processed_files"]:
             input_file = file_result['input_file']
             status = file_result['status']

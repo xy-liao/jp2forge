@@ -1,7 +1,7 @@
 """
 Metadata handler for JPEG2000 images.
 
-This module provides backward compatibility with the original monolithic 
+This module provides backward compatibility with the original monolithic
 metadata implementation by importing and reexporting the refactored classes.
 """
 
@@ -15,10 +15,10 @@ from core.metadata.xmp_utils import create_standard_metadata
 # the appropriate handler based on whether BnF compliance is needed
 def get_metadata_handler(bnf_compliant: bool = False):
     """Factory function to get the appropriate metadata handler.
-    
+
     Args:
         bnf_compliant: Whether to return a BnF-compliant handler
-        
+
     Returns:
         MetadataHandler instance
     """

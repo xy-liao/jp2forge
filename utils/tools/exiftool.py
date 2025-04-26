@@ -14,15 +14,16 @@ from typing import Dict, Any, Optional, List, Union, Tuple, BinaryIO
 
 logger = logging.getLogger(__name__)
 
+
 class ExifTool:
     """
     Interface for ExifTool metadata operations.
-    
+
     This class provides methods for reading and writing metadata
     in image files, with particular focus on XMP metadata for
     JPEG2000 files.
     """
-    
+
     def __init__(
         self,
         exiftool_path: str,
@@ -31,7 +32,7 @@ class ExifTool:
     ):
         """
         Initialize the ExifTool interface.
-        
+
         Args:
             exiftool_path: Path to exiftool executable
             temp_dir: Directory for temporary files
@@ -40,17 +41,17 @@ class ExifTool:
         self.exiftool_path = exiftool_path
         self.temp_dir = temp_dir
         self.timeout = timeout
-        
+
         # Validate existence of ExifTool
         if not os.path.exists(exiftool_path):
             raise FileNotFoundError(f"ExifTool not found at: {exiftool_path}")
-        
+
         logger.info(f"Initialized ExifTool interface with exiftool at {exiftool_path}")
-    
+
     def get_version(self) -> str:
         """
         Get ExifTool version information.
-        
+
         Returns:
             str: Version information
         """
@@ -63,17 +64,17 @@ class ExifTool:
                 timeout=self.timeout,
                 check=False
             )
-            
+
             if result.returncode == 0:
                 return result.stdout.strip()
             else:
                 logger.warning(f"ExifTool version check failed: {result.stderr.strip()}")
                 return "Unknown version"
-                
+
         except Exception as e:
             logger.error(f"Error getting ExifTool version: {e}")
             return "Error retrieving version"
-    
+
     def read_metadata(
         self,
         file_path: str,
@@ -82,19 +83,19 @@ class ExifTool:
     ) -> Dict[str, Any]:
         """
         Read metadata from a file.
-        
+
         Args:
             file_path: Path to file
             tags: Specific tags to read (None for all)
             format: Output format ('json', 'xml', 'html')
-            
+
         Returns:
             dict: Metadata dictionary
         """
         try:
             # Build command
             cmd = [self.exiftool_path]
-            
+
             # Add format options
             if format == 'json':
                 cmd.append('-j')
@@ -102,18 +103,18 @@ class ExifTool:
                 cmd.append('-X')
             elif format == 'html':
                 cmd.append('-h')
-            
+
             # Add specific tags if requested
             if tags:
                 for tag in tags:
                     cmd.append(f"-{tag}")
-            
+
             # Add file path
             cmd.append(file_path)
-            
+
             # Run command
             logger.debug(f"Running ExifTool command: {' '.join(cmd)}")
-            
+
             result = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -122,7 +123,7 @@ class ExifTool:
                 timeout=self.timeout,
                 check=False
             )
-            
+
             # Check for errors
             if result.returncode != 0:
                 logger.error(
@@ -130,7 +131,7 @@ class ExifTool:
                     f"{result.stderr.strip()}"
                 )
                 return {'error': result.stderr.strip()}
-            
+
             # Parse output based on format
             if format == 'json':
                 try:
@@ -142,11 +143,11 @@ class ExifTool:
             else:
                 # Return raw output for other formats
                 return {'raw': result.stdout}
-                
+
         except Exception as e:
             logger.error(f"Error running ExifTool: {e}")
             return {'error': str(e)}
-    
+
     def write_metadata(
         self,
         file_path: str,
@@ -155,12 +156,12 @@ class ExifTool:
     ) -> bool:
         """
         Write metadata to a file.
-        
+
         Args:
             file_path: Path to file
             metadata: Metadata to write
             overwrite_original: Whether to overwrite the original file
-            
+
         Returns:
             bool: True if successful
         """
@@ -171,28 +172,28 @@ class ExifTool:
                 prefix='exiftool_',
                 dir=self.temp_dir
             )
-            
+
             try:
                 # Write metadata to temporary file
                 with os.fdopen(fd, 'w', encoding='utf-8') as f:
                     json.dump(metadata, f)
-                
+
                 # Build command
                 cmd = [self.exiftool_path]
-                
+
                 # Add options
                 if overwrite_original:
                     cmd.append('-overwrite_original')
-                
+
                 # Add metadata file
                 cmd.extend(['-json', temp_path])
-                
+
                 # Add target file
                 cmd.append(file_path)
-                
+
                 # Run command
                 logger.debug(f"Running ExifTool command: {' '.join(cmd)}")
-                
+
                 result = subprocess.run(
                     cmd,
                     stdout=subprocess.PIPE,
@@ -201,7 +202,7 @@ class ExifTool:
                     timeout=self.timeout,
                     check=False
                 )
-                
+
                 # Check for errors
                 if result.returncode != 0:
                     logger.error(
@@ -209,21 +210,21 @@ class ExifTool:
                         f"{result.stderr.strip()}"
                     )
                     return False
-                
+
                 logger.info(f"Successfully wrote metadata to {file_path}")
                 return True
-                
+
             finally:
                 # Clean up temporary file
                 try:
                     os.remove(temp_path)
                 except Exception as e:
                     logger.warning(f"Failed to remove temporary file {temp_path}: {e}")
-                
+
         except Exception as e:
             logger.error(f"Error writing metadata: {e}")
             return False
-    
+
     def write_xmp_block(
         self,
         file_path: str,
@@ -232,12 +233,12 @@ class ExifTool:
     ) -> bool:
         """
         Write XMP metadata block to a file.
-        
+
         Args:
             file_path: Path to file
             xmp_content: XMP metadata as XML string
             overwrite_original: Whether to overwrite the original file
-            
+
         Returns:
             bool: True if successful
         """
@@ -248,28 +249,28 @@ class ExifTool:
                 prefix='exiftool_',
                 dir=self.temp_dir
             )
-            
+
             try:
                 # Write XMP content to temporary file
                 with os.fdopen(fd, 'w', encoding='utf-8') as f:
                     f.write(xmp_content)
-                
+
                 # Build command
                 cmd = [self.exiftool_path]
-                
+
                 # Add options
                 if overwrite_original:
                     cmd.append('-overwrite_original')
-                
+
                 # Add XMP file
                 cmd.extend(['-xmp', f"<={temp_path}"])
-                
+
                 # Add target file
                 cmd.append(file_path)
-                
+
                 # Run command
                 logger.debug(f"Running ExifTool command: {' '.join(cmd)}")
-                
+
                 result = subprocess.run(
                     cmd,
                     stdout=subprocess.PIPE,
@@ -278,7 +279,7 @@ class ExifTool:
                     timeout=self.timeout,
                     check=False
                 )
-                
+
                 # Check for errors
                 if result.returncode != 0:
                     logger.error(
@@ -286,35 +287,35 @@ class ExifTool:
                         f"{result.stderr.strip()}"
                     )
                     return False
-                
+
                 logger.info(f"Successfully wrote XMP metadata to {file_path}")
                 return True
-                
+
             finally:
                 # Clean up temporary file
                 try:
                     os.remove(temp_path)
                 except Exception as e:
                     logger.warning(f"Failed to remove temporary file {temp_path}: {e}")
-                
+
         except Exception as e:
             logger.error(f"Error writing XMP metadata: {e}")
             return False
-    
+
     def extract_xmp(self, file_path: str) -> str:
         """
         Extract XMP metadata from a file.
-        
+
         Args:
             file_path: Path to file
-            
+
         Returns:
             str: XMP metadata as XML string
         """
         try:
             # Build command
             cmd = [self.exiftool_path, '-xmp', '-b', file_path]
-            
+
             # Run command
             result = subprocess.run(
                 cmd,
@@ -324,7 +325,7 @@ class ExifTool:
                 timeout=self.timeout,
                 check=False
             )
-            
+
             # Check for errors
             if result.returncode != 0:
                 logger.error(
@@ -332,13 +333,13 @@ class ExifTool:
                     f"{result.stderr.strip()}"
                 )
                 return ""
-            
+
             return result.stdout
-                
+
         except Exception as e:
             logger.error(f"Error extracting XMP metadata: {e}")
             return ""
-    
+
     def copy_metadata(
         self,
         source_file: str,
@@ -348,41 +349,41 @@ class ExifTool:
     ) -> bool:
         """
         Copy metadata from one file to another.
-        
+
         Args:
             source_file: Source file path
             target_file: Target file path
             tags: Specific tags to copy (None for all)
             overwrite_original: Whether to overwrite the original target file
-            
+
         Returns:
             bool: True if successful
         """
         try:
             # Build command
             cmd = [self.exiftool_path]
-            
+
             # Add options
             if overwrite_original:
                 cmd.append('-overwrite_original')
-            
+
             # Add specific tags if requested
             if tags:
                 for tag in tags:
                     cmd.append(f"-{tag}")
             else:
                 cmd.append('-all')
-            
+
             # Add target specification
             cmd.append(f"-tagsFromFile")
             cmd.append(source_file)
-            
+
             # Add target file
             cmd.append(target_file)
-            
+
             # Run command
             logger.debug(f"Running ExifTool command: {' '.join(cmd)}")
-            
+
             result = subprocess.run(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -391,7 +392,7 @@ class ExifTool:
                 timeout=self.timeout,
                 check=False
             )
-            
+
             # Check for errors
             if result.returncode != 0:
                 logger.error(
@@ -399,10 +400,10 @@ class ExifTool:
                     f"{result.stderr.strip()}"
                 )
                 return False
-            
+
             logger.info(f"Successfully copied metadata from {source_file} to {target_file}")
             return True
-                
+
         except Exception as e:
             logger.error(f"Error copying metadata: {e}")
             return False

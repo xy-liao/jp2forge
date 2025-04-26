@@ -22,7 +22,7 @@ MEMORY_MULTIPLIERS = {
 
 # Memory usage per pixel for different modes (in bytes)
 BYTES_PER_PIXEL = {
-    '1': 1/8,    # 1-bit pixels
+    '1': 1 / 8,    # 1-bit pixels
     'L': 1,      # 8-bit pixels, grayscale
     'P': 1,      # 8-bit pixels, mapped to palette
     'RGB': 3,    # 3x8-bit pixels, true color
@@ -37,53 +37,55 @@ BYTES_PER_PIXEL = {
     'I;16B': 2,  # 16-bit big-endian unsigned integer pixels
     'I;16L': 2,  # 16-bit little-endian unsigned integer pixels
     'I;16S': 2,  # 16-bit signed integer pixels
-    'I;16BS': 2, # 16-bit big-endian signed integer pixels
-    'I;16LS': 2, # 16-bit little-endian signed integer pixels
+    'I;16BS': 2,  # 16-bit big-endian signed integer pixels
+    'I;16LS': 2,  # 16-bit little-endian signed integer pixels
     'I;32': 4,   # 32-bit unsigned integer pixels
     'I;32B': 4,  # 32-bit big-endian unsigned integer pixels
     'I;32L': 4,  # 32-bit little-endian unsigned integer pixels
     'I;32S': 4,  # 32-bit signed integer pixels
-    'I;32BS': 4, # 32-bit big-endian signed integer pixels
-    'I;32LS': 4, # 32-bit little-endian signed integer pixels
+    'I;32BS': 4,  # 32-bit big-endian signed integer pixels
+    'I;32LS': 4,  # 32-bit little-endian signed integer pixels
 }
 
+
 def estimate_memory_usage(
-    width: int, 
-    height: int, 
-    mode: str, 
+    width: int,
+    height: int,
+    mode: str,
     operation: str = 'process'
 ) -> int:
     """
     Estimate memory usage for an image operation.
-    
+
     Args:
         width: Image width in pixels
         height: Image height in pixels
         mode: Image mode (e.g., 'RGB', 'L')
         operation: Operation type ('load', 'process', 'compress', 'analyze')
-        
+
     Returns:
         int: Estimated memory usage in bytes
     """
     # Get bytes per pixel for the mode
     bytes_per_pixel = BYTES_PER_PIXEL.get(mode, 4)  # Default to 4 bytes if unknown
-    
+
     # Get memory multiplier for the operation
     multiplier = MEMORY_MULTIPLIERS.get(operation, 2.0)  # Default to 2.0 if unknown
-    
+
     # Calculate base memory usage
     pixel_count = width * height
     base_memory = pixel_count * bytes_per_pixel
-    
+
     # Apply multiplier for the operation
     total_memory = int(base_memory * multiplier)
-    
+
     logger.debug(
         f"Memory estimate for {width}x{height} {mode} image, operation '{operation}': "
         f"{total_memory / (1024 * 1024):.2f} MB"
     )
-    
+
     return total_memory
+
 
 def calculate_optimal_chunk_size(
     width: int,
@@ -95,7 +97,7 @@ def calculate_optimal_chunk_size(
 ) -> int:
     """
     Calculate optimal chunk height for processing a large image.
-    
+
     Args:
         width: Image width in pixels
         height: Image height in pixels
@@ -103,7 +105,7 @@ def calculate_optimal_chunk_size(
         operation: Operation type ('load', 'process', 'compress', 'analyze')
         memory_limit_mb: Memory limit in MB, or None to use 50% of system memory
         min_chunk_height: Minimum chunk height in pixels
-        
+
     Returns:
         int: Optimal chunk height in pixels
     """
@@ -113,31 +115,32 @@ def calculate_optimal_chunk_size(
         memory_limit = int(system_memory * 0.5)  # Use 50% of system memory
     else:
         memory_limit = memory_limit_mb * 1024 * 1024  # Convert MB to bytes
-    
+
     # Calculate memory per row
     bytes_per_pixel = BYTES_PER_PIXEL.get(mode, 4)
     memory_per_row = width * bytes_per_pixel * MEMORY_MULTIPLIERS.get(operation, 2.0)
-    
+
     # Calculate maximum rows based on memory limit
     max_rows = max(min_chunk_height, int(memory_limit / memory_per_row))
-    
+
     # Ensure we don't exceed image height
     chunk_height = min(max_rows, height)
-    
+
     logger.debug(
         f"Optimal chunk height for {width}x{height} {mode} image: "
         f"{chunk_height} rows ({chunk_height/height*100:.1f}% of image)"
     )
-    
+
     return chunk_height
+
 
 def get_image_dimensions_and_mode(image_path: str) -> Tuple[int, int, str]:
     """
     Get image dimensions and mode without loading the entire image.
-    
+
     Args:
         image_path: Path to the image file
-        
+
     Returns:
         tuple: (width, height, mode)
     """
@@ -148,32 +151,33 @@ def get_image_dimensions_and_mode(image_path: str) -> Tuple[int, int, str]:
         logger.error(f"Error reading image dimensions: {e}")
         raise
 
+
 def estimate_image_file_memory(
-    image_path: str, 
+    image_path: str,
     operation: str = 'process'
 ) -> Dict[str, Any]:
     """
     Estimate memory requirements for an image file.
-    
+
     Args:
         image_path: Path to the image file
         operation: Operation type ('load', 'process', 'compress', 'analyze')
-        
+
     Returns:
         dict: Memory estimation details
     """
     # Get image dimensions and mode
     width, height, mode = get_image_dimensions_and_mode(image_path)
-    
+
     # Estimate memory usage
     memory_bytes = estimate_memory_usage(width, height, mode, operation)
-    
+
     # Get system memory for comparison
     system_memory = psutil.virtual_memory().total
-    
+
     # Calculate percentage of system memory
     memory_percentage = (memory_bytes / system_memory) * 100
-    
+
     result = {
         'width': width,
         'height': height,
@@ -186,10 +190,10 @@ def estimate_image_file_memory(
         'exceeds_ram': memory_bytes > system_memory,
         'recommended_chunking': memory_bytes > (system_memory / 4)
     }
-    
+
     logger.debug(
         f"Memory estimation for {image_path}: "
         f"{result['memory_mb']:.2f} MB ({result['memory_percentage']:.1f}% of system RAM)"
     )
-    
+
     return result

@@ -17,10 +17,10 @@ logger = logging.getLogger(__name__)
 def ensure_directory(directory: str) -> bool:
     """
     Ensure a directory exists, creating it if necessary.
-    
+
     Args:
         directory: Path to directory
-        
+
     Returns:
         bool: True if successful
     """
@@ -35,10 +35,10 @@ def ensure_directory(directory: str) -> bool:
 def get_file_size(file_path: str) -> int:
     """
     Get size of a file in bytes.
-    
+
     Args:
         file_path: Path to file
-        
+
     Returns:
         int: File size in bytes
     """
@@ -52,10 +52,10 @@ def get_file_size(file_path: str) -> int:
 def get_file_extension(file_path: str) -> str:
     """
     Get the extension of a file.
-    
+
     Args:
         file_path: Path to file
-        
+
     Returns:
         str: File extension
     """
@@ -65,10 +65,10 @@ def get_file_extension(file_path: str) -> str:
 def is_image_file(file_path: str) -> bool:
     """
     Check if a file is an image file based on extension.
-    
+
     Args:
         file_path: Path to file
-        
+
     Returns:
         bool: True if file is an image
     """
@@ -78,10 +78,10 @@ def is_image_file(file_path: str) -> bool:
 def load_json(file_path: str) -> Optional[Dict[str, Any]]:
     """
     Load JSON data from a file.
-    
+
     Args:
         file_path: Path to JSON file
-        
+
     Returns:
         dict: Loaded JSON data, or None if loading fails
     """
@@ -96,12 +96,12 @@ def load_json(file_path: str) -> Optional[Dict[str, Any]]:
 def save_json(data: Dict[str, Any], file_path: str, indent: int = 4) -> bool:
     """
     Save JSON data to a file.
-    
+
     Args:
         data: Data to save
         file_path: Path to output file
         indent: Indentation level for JSON
-        
+
     Returns:
         bool: True if successful
     """
@@ -118,12 +118,12 @@ def save_json(data: Dict[str, Any], file_path: str, indent: int = 4) -> bool:
 def copy_file(source: str, destination: str, overwrite: bool = False) -> bool:
     """
     Copy a file from source to destination.
-    
+
     Args:
         source: Source file path
         destination: Destination file path
         overwrite: Whether to overwrite existing files
-        
+
     Returns:
         bool: True if successful
     """
@@ -131,7 +131,7 @@ def copy_file(source: str, destination: str, overwrite: bool = False) -> bool:
         if os.path.exists(destination) and not overwrite:
             logger.warning(f"File {destination} already exists")
             return False
-        
+
         ensure_directory(os.path.dirname(destination))
         shutil.copy2(source, destination)
         return True
@@ -143,10 +143,10 @@ def copy_file(source: str, destination: str, overwrite: bool = False) -> bool:
 def delete_file(file_path: str) -> bool:
     """
     Delete a file.
-    
+
     Args:
         file_path: Path to file to delete
-        
+
     Returns:
         bool: True if successful
     """

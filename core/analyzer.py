@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class ImageAnalyzer:
     """Handles image analysis and quality assessment."""
-    
+
     def __init__(
         self,
         psnr_threshold: float = 40.0,
@@ -29,7 +29,7 @@ class ImageAnalyzer:
         report_dir: Optional[str] = None
     ):
         """Initialize the analyzer.
-        
+
         Args:
             psnr_threshold: PSNR threshold for quality control
             ssim_threshold: SSIM threshold for quality control
@@ -40,10 +40,10 @@ class ImageAnalyzer:
         self.ssim_threshold = ssim_threshold
         self.mse_threshold = mse_threshold
         self.report_dir = report_dir
-        
+
         if report_dir:
             os.makedirs(report_dir, exist_ok=True)
-    
+
     def analyze_pixel_loss(
         self,
         original_path: str,
@@ -51,12 +51,12 @@ class ImageAnalyzer:
         save_report: bool = False  # Changed default from True to False
     ) -> AnalysisResult:
         """Analyze pixel loss between original and converted images.
-        
+
         Args:
             original_path: Path to original image
             converted_path: Path to converted image
             save_report: Whether to save a detailed report (default: False)
-            
+
         Returns:
             AnalysisResult: Analysis results
         """
@@ -66,19 +66,19 @@ class ImageAnalyzer:
                 orig_array = np.array(orig_img)
             with Image.open(converted_path) as conv_img:
                 conv_array = np.array(conv_img)
-            
+
             # Calculate metrics
             mse = calculate_mse(orig_array, conv_array)
             psnr = calculate_psnr(mse)
             ssim = calculate_ssim(orig_array, conv_array)
-            
+
             # Check if quality thresholds are met
             quality_passed = (
                 psnr >= self.psnr_threshold and
                 ssim >= self.ssim_threshold and
                 mse <= self.mse_threshold
             )
-            
+
             # Create result
             result = AnalysisResult(
                 psnr=float(psnr),
@@ -86,7 +86,7 @@ class ImageAnalyzer:
                 mse=float(mse),
                 quality_passed=quality_passed
             )
-            
+
             # Save report if requested and directory is set
             if save_report and self.report_dir:
                 self._save_analysis_report(
@@ -94,9 +94,9 @@ class ImageAnalyzer:
                     original_path,
                     converted_path
                 )
-            
+
             return result
-            
+
         except Exception as e:
             logger.error(f"Error analyzing pixel loss: {str(e)}")
             return AnalysisResult(
@@ -106,7 +106,7 @@ class ImageAnalyzer:
                 quality_passed=False,
                 error=str(e)
             )
-    
+
     def _save_analysis_report(
         self,
         result: AnalysisResult,
@@ -114,12 +114,12 @@ class ImageAnalyzer:
         converted_path: str
     ) -> str:
         """Save analysis results to a report file.
-        
+
         Args:
             result: Analysis results
             original_path: Path to original image
             converted_path: Path to converted image
-            
+
         Returns:
             str: Path to report file
         """
@@ -127,12 +127,12 @@ class ImageAnalyzer:
             # Create report filename
             report_name = f"analysis_{os.path.basename(original_path)}.json"
             report_path = os.path.join(self.report_dir, report_name)
-            
+
             # Get file sizes
             original_size = os.path.getsize(original_path)
             converted_size = os.path.getsize(converted_path)
             compression_ratio = original_size / converted_size if converted_size > 0 else 0
-            
+
             # Create report data - Convert boolean to string for JSON serialization
             report_data = {
                 "original_file": os.path.basename(original_path),
@@ -157,29 +157,29 @@ class ImageAnalyzer:
                 },
                 "recommendations": self._get_recommendations(result)
             }
-            
+
             # Write report to file
             with open(report_path, 'w') as f:
                 json.dump(report_data, f, indent=4)
-            
+
             logger.info(f"Saved analysis report to {report_path}")
             return report_path
-            
+
         except Exception as e:
             logger.error(f"Error saving analysis report: {str(e)}")
             return ""
-    
+
     def _get_recommendations(self, result: AnalysisResult) -> list:
         """Generate recommendations based on analysis results.
-        
+
         Args:
             result: Analysis results
-            
+
         Returns:
             List of recommendations
         """
         recommendations = []
-        
+
         if not result.quality_passed:
             if result.psnr < self.psnr_threshold:
                 recommendations.append(
@@ -196,29 +196,29 @@ class ImageAnalyzer:
                     f"MSE ({result.mse:.2f}) exceeds threshold ({self.mse_threshold}). "
                     "High pixel value differences detected."
                 )
-        
+
         if not recommendations:
             recommendations.append(
                 "No quality issues detected. All metrics within acceptable thresholds."
             )
-        
+
         return recommendations
-        
+
     def _format_file_size(self, size_in_bytes: int) -> str:
         """Format file size in human-readable format.
-        
+
         Args:
             size_in_bytes: File size in bytes
-            
+
         Returns:
             str: Human-readable file size
         """
         units = ['B', 'KB', 'MB', 'GB', 'TB']
         size = float(size_in_bytes)
         unit_index = 0
-        
+
         while size >= 1024 and unit_index < len(units) - 1:
             size /= 1024
             unit_index += 1
-            
+
         return f"{size:.2f} {units[unit_index]}"

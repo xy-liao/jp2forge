@@ -47,13 +47,13 @@ def main():
     print("=" * 60)
     print("JP2Forge Dependency Checker")
     print("=" * 60)
-    
+
     # System information
     print("\nSystem Information:")
     print(f"Python version: {platform.python_version()}")
     print(f"OS: {platform.system()} {platform.release()}")
     print(f"Platform: {platform.platform()}")
-    
+
     # Required Python modules
     print("\nChecking required Python modules:")
     required_modules = {
@@ -61,10 +61,10 @@ def main():
         "numpy": "numpy",
         "psutil": "psutil"
     }
-    
+
     all_modules_installed = True
     missing_modules = []
-    
+
     for module_name, package_name in required_modules.items():
         if check_module(module_name):
             version = get_module_version(module_name)
@@ -73,10 +73,10 @@ def main():
             print(f"❌ {module_name} is NOT installed")
             missing_modules.append(package_name)
             all_modules_installed = False
-    
+
     # External dependencies
     print("\nChecking external dependencies:")
-    
+
     # Check exiftool (optional)
     exiftool_found = check_command("exiftool")
     if exiftool_found:
@@ -94,7 +94,7 @@ def main():
             print("✅ ExifTool is installed (version: unknown)")
     else:
         print("⚠️ ExifTool is NOT installed (optional for advanced metadata handling)")
-    
+
     # Check jpylyzer (optional but recommended for JP2 validation)
     jpylyzer_found = check_command("jpylyzer")
     if jpylyzer_found:
@@ -114,13 +114,13 @@ def main():
         print("\033[93m⚠️ JPylyzer is NOT installed\033[0m")
         print("\033[93m  JP2 validation will be limited without JPylyzer.\033[0m")
         print("\033[93m  The validation reports will not contain detailed properties information.\033[0m")
-        
+
     # Installation instructions
     if not all_modules_installed:
         print("\nMissing required dependencies:")
         print("Install them using pip:")
         print(f"pip install {' '.join(missing_modules)}")
-    
+
     if not exiftool_found:
         print("\nTo install ExifTool (optional):")
         if platform.system() == "Darwin":  # macOS
@@ -130,11 +130,11 @@ def main():
             print("For Fedora/RHEL: sudo dnf install perl-Image-ExifTool")
         elif platform.system() == "Windows":
             print("Download from https://exiftool.org/ and add to PATH")
-    
+
     if not jpylyzer_found:
         print("\nTo install JPylyzer (recommended for JP2 validation):")
         print("pip install jpylyzer")
-    
+
     print("\nDependency check completed.")
     if all_modules_installed:
         if not jpylyzer_found:

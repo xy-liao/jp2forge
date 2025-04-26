@@ -19,8 +19,8 @@ from pathlib import Path
 from datetime import datetime
 
 from core.types import (
-    DocumentType, 
-    CompressionMode, 
+    DocumentType,
+    CompressionMode,
     ProcessingMode,
     WorkflowStatus,
     WorkflowConfig
@@ -35,10 +35,10 @@ logger = logging.getLogger("jp2forge")
 
 def create_workflow(config: WorkflowConfig):
     """Create the appropriate workflow based on configuration.
-    
+
     Args:
         config: Workflow configuration
-        
+
     Returns:
         Workflow instance
     """
@@ -80,17 +80,17 @@ def generate_summary_report_with_jpylyzer(results, config, report_dir):
 
     # Calculate statistics if they aren't already present
     total_files = len(results.get('processed_files', []))
-    success_count = results.get('success_count', 0) 
+    success_count = results.get('success_count', 0)
     if 'success_count' not in results:
         # Calculate successful files if not provided
-        success_count = sum(1 for file in results.get('processed_files', []) 
-                           if file.get('status') == 'SUCCESS')
+        success_count = sum(1 for file in results.get('processed_files', [])
+                            if file.get('status') == 'SUCCESS')
         results['success_count'] = success_count
-    
+
     warning_count = results.get('warning_count', 0)
     error_count = results.get('error_count', 0)
     corrupted_count = results.get('corrupted_count', 0)
-    
+
     # Use .name if status is an enum, otherwise use the string value directly with 'UNKNOWN' as fallback
     overall_status = results.get('status', 'UNKNOWN')
     if hasattr(overall_status, 'name'):
@@ -106,18 +106,19 @@ def generate_summary_report_with_jpylyzer(results, config, report_dir):
     summary_lines.append(f"Errors: {error_count}")
     summary_lines.append(f"Corrupted: {corrupted_count}")
     summary_lines.append(f"Overall Status: {overall_status}")
-    
+
     if results.get('processing_time', 0) > 0:
         summary_lines.append(f"Total Processing Time: {results['processing_time']:.2f} seconds")
         if total_files > 0:
-            summary_lines.append(f"Average Processing Rate: {total_files / results['processing_time']:.2f} files/second\n")
-    
+            summary_lines.append(
+                f"Average Processing Rate: {total_files / results['processing_time']:.2f} files/second\n")
+
     summary_lines.append("## Configuration\n-----------------")
     for key, value in config.items():
         summary_lines.append(f"{key}: {value}")
     summary_lines.append("")
     summary_lines.append("## Detailed Results\n----------------")
-    
+
     for file_result in results.get('processed_files', []):
         input_file = file_result.get('input_file', 'Unknown')
         status = file_result.get('status', 'UNKNOWN')
@@ -127,7 +128,7 @@ def generate_summary_report_with_jpylyzer(results, config, report_dir):
         ratio = file_result.get('file_sizes', {}).get('compression_ratio', 'N/A')
         jp2_name = Path(output_file).name if output_file else ''
         is_valid = jpylyzer_data.get(jp2_name, {}).get('isValid', None)
-        
+
         summary_lines.append(f"File: {input_file}")
         summary_lines.append(f"Status: {status}")
         summary_lines.append(f"Output: {output_file}")
@@ -136,11 +137,12 @@ def generate_summary_report_with_jpylyzer(results, config, report_dir):
         summary_lines.append(f"Compression Ratio: {ratio}")
         summary_lines.append(f"Jpylyzer Validation: {is_valid}")
         summary_lines.append("")
-    
+
     with open(Path(report_dir) / "summary_report.md", "w") as f:
         f.write("\n".join(summary_lines))
-    
-    logger.info(f"Summary report with Jpylyzer validation written to: {Path(report_dir) / 'summary_report.md'}")
+
+    logger.info(
+        f"Summary report with Jpylyzer validation written to: {Path(report_dir) / 'summary_report.md'}")
 
 
 def main():
@@ -386,7 +388,7 @@ def main():
     )
 
     args = parser.parse_args()
-    
+
     # Handle version flag
     if args.version:
         import pkg_resources
@@ -404,12 +406,12 @@ def main():
         log_file=args.log_file,
         verbose=args.verbose
     )
-    
+
     # Header information
     logger.info("=" * 80)
     logger.info("JP2Forge Workflow")
     logger.info("=" * 80)
-    
+
     # Create workflow configuration
     if args.config and os.path.exists(args.config):
         # Load configuration from file
@@ -430,9 +432,9 @@ def main():
             quality_threshold=args.quality,
             num_resolutions=args.resolutions,
             progression_order=args.progression,
-            compression_mode=(CompressionMode.BNF_COMPLIANT 
-                             if args.bnf_compliant and args.compression_mode != "lossless" 
-                             else CompressionMode(args.compression_mode)),
+            compression_mode=(CompressionMode.BNF_COMPLIANT
+                              if args.bnf_compliant and args.compression_mode != "lossless"
+                              else CompressionMode(args.compression_mode)),
             processing_mode=ProcessingMode.PARALLEL if args.parallel else ProcessingMode.SEQUENTIAL,
             max_workers=args.max_workers,
             memory_limit_mb=args.memory_limit,
@@ -459,7 +461,7 @@ def main():
             target_compression_ratio=args.compression_ratio,
             target_size=args.target_size
         )
-    
+
     # Save configuration if requested
     if args.save_config:
         try:
@@ -471,7 +473,7 @@ def main():
             logger.info(f"Saved configuration to {args.save_config}")
         except Exception as e:
             logger.error(f"Error saving configuration: {str(e)}")
-    
+
     # Log configuration
     logger.info(f"Processing: {args.input_path}")
     logger.info(f"Output directory: {config.output_dir}")
@@ -479,21 +481,22 @@ def main():
     logger.info(f"Compression mode: {config.compression_mode.value}")
     logger.info(f"Processing mode: {config.processing_mode.name}")
     if config.processing_mode == ProcessingMode.PARALLEL:
-        logger.info(f"Using {config.max_workers or (multiprocessing.cpu_count() - 1)} worker processes")
+        logger.info(
+            f"Using {config.max_workers or (multiprocessing.cpu_count() - 1)} worker processes")
     logger.info("-" * 80)
-    
+
     # Create the workflow
     # Initialize the compressor with Kakadu if requested
     use_kakadu = args.bnf_compliant and args.use_kakadu
-    
+
     # Create the workflow
     workflow = create_workflow(config)
-    
+
     # Set Kakadu parameters if used
     if use_kakadu and hasattr(workflow, 'compressor'):
         workflow.compressor.use_kakadu = True
         workflow.compressor.kakadu_path = args.kakadu_path
-    
+
     # Load metadata if provided
     metadata = None
     if args.metadata and os.path.exists(args.metadata):
@@ -503,43 +506,43 @@ def main():
             logger.info(f"Loaded metadata from {args.metadata}")
         except Exception as e:
             logger.error(f"Error loading metadata: {str(e)}")
-    
+
     # Process input
     if os.path.isfile(args.input_path):
         # Process single file
         logger.info(f"Processing single file: {args.input_path}")
-        
+
         result = workflow.process_file(args.input_path)
-        
+
         logger.info("-" * 80)
         logger.info(f"Processing status: {result.status.name}")
-        
+
         if result.output_file:
             logger.info(f"Output file: {result.output_file}")
             if os.path.exists(result.output_file):
                 orig_size = os.path.getsize(args.input_path) / (1024 * 1024)
                 new_size = os.path.getsize(result.output_file) / (1024 * 1024)
                 compression_ratio = orig_size / new_size if new_size > 0 else 0
-                
+
                 logger.info(f"Original size: {orig_size:.2f} MB")
                 logger.info(f"Compressed size: {new_size:.2f} MB")
                 logger.info(f"Achieved compression ratio: {compression_ratio:.2f}:1")
-        
+
         if result.report_file:
             logger.info(f"Report file: {result.report_file}")
-            
+
         if result.error:
             logger.error(f"Error: {result.error}")
             return 1
-            
+
         return 0 if result.status != WorkflowStatus.FAILURE else 1
-    
+
     else:
         # Process directory
         logger.info(f"Processing directory: {args.input_path}")
         if args.recursive:
             logger.info("Processing subdirectories recursively")
-        
+
         results = workflow.process_directory(
             args.input_path,
             metadata=metadata
@@ -547,36 +550,37 @@ def main():
         # JPylyzer validation and reporting
         validate_output_with_jpylyzer(args.output_dir, args.report_dir)
         logger.info(f"JPylyzer validation reports written to: {args.report_dir}")
-        
+
         # Generate summary report
         generate_summary_report_with_jpylyzer(results, config.to_dict(), args.report_dir)
-        
+
         logger.info("-" * 80)
         logger.info(f"Processing status: {results['status'].name}")
-        
+
         # Handle the case when directory processing fails
         if 'error' in results:
             logger.error(f"Error: {results['error']}")
             return 1
-        
+
         # Only access these keys if directory processing was successful
         logger.info(f"Files processed: {len(results.get('processed_files', []))}")
         logger.info(f"Successful: {results.get('success_count', 0)}")
         logger.info(f"Warnings: {results.get('warning_count', 0)}")
         logger.info(f"Errors: {results.get('error_count', 0)}")
-        
+
         if 'processing_time' in results:
             logger.info(f"Processing time: {results['processing_time']:.2f} seconds")
             if results['processing_time'] > 0 and len(results.get('processed_files', [])) > 0:
-                logger.info(f"Processing rate: {len(results['processed_files']) / results['processing_time']:.2f} files/second")
-        
+                logger.info(
+                    f"Processing rate: {len(results['processed_files']) / results['processing_time']:.2f} files/second")
+
         if results.get('summary_report'):
             logger.info(f"Summary report: {results['summary_report']}")
-        
+
         logger.info("=" * 80)
         logger.info("Processing complete")
         logger.info("=" * 80)
-        
+
         return 0 if results['status'] != WorkflowStatus.FAILURE else 1
 
 

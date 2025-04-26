@@ -21,7 +21,7 @@ def create_standard_metadata(
     software: str = "JP2Forge"
 ) -> Dict[str, Any]:
     """Create a standard metadata dictionary.
-    
+
     Args:
         title: Title of the image
         creator: Creator of the image
@@ -29,7 +29,7 @@ def create_standard_metadata(
         rights: Rights statement
         source: Source of the image
         software: Software used to create the image
-        
+
     Returns:
         dict: Dictionary containing standard metadata
     """
@@ -37,7 +37,7 @@ def create_standard_metadata(
         'dublin_core': {},
         'technical': {}
     }
-    
+
     # Add Dublin Core metadata
     if title:
         metadata['dublin_core']['title'] = title
@@ -49,26 +49,26 @@ def create_standard_metadata(
         metadata['dublin_core']['rights'] = rights
     if source:
         metadata['dublin_core']['source'] = source
-    
+
     # Add format
     metadata['dublin_core']['format'] = 'image/jp2'
-    
+
     # Add date
     metadata['dublin_core']['date'] = datetime.now().strftime("%Y-%m-%d")
-    
+
     # Add software
     metadata['technical']['software'] = software
-    
+
     return metadata
 
 
 def validate_xmp_namespace(namespace: str, value: str) -> bool:
     """Validate that a value is appropriate for its XMP namespace.
-    
+
     Args:
         namespace: XMP namespace prefix (e.g., 'dc', 'xmp', 'tiff')
         value: Value to validate
-        
+
     Returns:
         bool: True if the value is valid for the namespace
     """
@@ -76,7 +76,7 @@ def validate_xmp_namespace(namespace: str, value: str) -> bool:
     if namespace == 'dc' or namespace == 'dcterms':
         # Dublin Core values shouldn't be empty
         return bool(value and value.strip())
-    
+
     elif namespace == 'xmp':
         # Most XMP values have specific formats
         if 'Date' in namespace:
@@ -87,43 +87,43 @@ def validate_xmp_namespace(namespace: str, value: str) -> bool:
             except ValueError:
                 return False
         return bool(value)
-    
+
     elif namespace == 'tiff':
         # TIFF values typically shouldn't be empty
         return bool(value and value.strip())
-    
+
     # Default: just ensure it's not empty
     return bool(value and value.strip())
 
 
 def escape_xml_string(text: str) -> str:
     """Escape special characters in a string for XML.
-    
+
     Args:
         text: String to escape
-        
+
     Returns:
         str: Escaped string
     """
     if not text:
         return ""
-        
+
     # Replace special XML characters
     text = text.replace('&', '&amp;')
     text = text.replace('<', '&lt;')
     text = text.replace('>', '&gt;')
     text = text.replace('"', '&quot;')
     text = text.replace("'", '&apos;')
-    
+
     return text
 
 
 def format_xmp_date(dt: datetime) -> str:
     """Format a datetime object as an XMP date string.
-    
+
     Args:
         dt: Datetime object
-        
+
     Returns:
         str: Formatted XMP date string
     """
@@ -132,7 +132,7 @@ def format_xmp_date(dt: datetime) -> str:
 
 def get_xmp_namespaces() -> Dict[str, str]:
     """Get a dictionary of common XMP namespace prefixes and URIs.
-    
+
     Returns:
         dict: Dictionary of namespace prefixes and URIs
     """

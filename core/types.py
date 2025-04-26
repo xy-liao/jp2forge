@@ -8,6 +8,7 @@ throughout the JPEG2000 workflow.
 from enum import Enum, auto
 from typing import Dict, Any, Optional, NamedTuple, Union, List, Tuple, Set
 
+
 class DocumentType(Enum):
     """Document types for JPEG2000 conversion."""
     PHOTOGRAPH = auto()
@@ -40,25 +41,25 @@ class CompressionMode(Enum):
 
 class BnFCompressionRatio:
     """Compression ratios based on BnF specifications for different document types.
-    
+
     These compression ratios are implemented according to the BnF (Bibliothèque nationale
     de France) specifications in their "Référentiel de format de fichier image v2" (2015).
     This implementation is provided for educational purposes.
-    
+
     See: https://www.bnf.fr/sites/default/files/2018-11/ref_num_fichier_image_v2.pdf
     """
     SPECIALIZED = 4.0  # 1:4 ratio for specialized documents (prints, photographs, etc.)
     EXCEPTIONAL = 4.0  # 1:4 ratio for exceptional documents (manuscripts with illuminations, etc.)
     PRINTED = 6.0      # 1:6 ratio for printed documents
-    TRANSPARENT = 16.0 # 1:16 ratio for transparent documents in grayscale
-    
+    TRANSPARENT = 16.0  # 1:16 ratio for transparent documents in grayscale
+
     @staticmethod
     def get_ratio_for_type(doc_type: DocumentType) -> float:
         """Get BnF compression ratio for document type.
-        
+
         Args:
             doc_type: Document type
-            
+
         Returns:
             float: Target compression ratio
         """
@@ -94,7 +95,7 @@ class ProcessingResult(NamedTuple):
 
 class WorkflowConfig:
     """Configuration for the JPEG2000 workflow."""
-    
+
     def __init__(
         self,
         output_dir: str,
@@ -140,7 +141,7 @@ class WorkflowConfig:
         target_size: Optional[int] = None
     ):
         """Initialize the workflow configuration.
-        
+
         Args:
             output_dir: Directory for output files
             report_dir: Directory for reports
@@ -203,14 +204,14 @@ class WorkflowConfig:
         self.bnf_compliant = bnf_compliant
         self.compression_ratio_tolerance = compression_ratio_tolerance
         self.include_bnf_markers = include_bnf_markers
-        
+
         # Initialize new optimization options
         self.use_memory_pool = use_memory_pool
         self.memory_pool_size_mb = memory_pool_size_mb
         self.memory_pool_max_blocks = memory_pool_max_blocks
         self.enable_profiling = enable_profiling
         self.detailed_memory_tracking = detailed_memory_tracking
-        
+
         # Initialize additional CLI parameters
         self.no_compression = no_compression
         self.strict = strict
@@ -227,28 +228,28 @@ class WorkflowConfig:
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> 'WorkflowConfig':
         """Create a configuration from a dictionary.
-        
+
         Args:
             config_dict: Dictionary containing configuration values
-            
+
         Returns:
             WorkflowConfig instance
         """
         # Handle enum conversions
         if 'document_type' in config_dict and isinstance(config_dict['document_type'], str):
             config_dict['document_type'] = DocumentType[config_dict['document_type'].upper()]
-            
+
         if 'compression_mode' in config_dict and isinstance(config_dict['compression_mode'], str):
             config_dict['compression_mode'] = CompressionMode(config_dict['compression_mode'])
-            
+
         if 'processing_mode' in config_dict and isinstance(config_dict['processing_mode'], str):
             config_dict['processing_mode'] = ProcessingMode[config_dict['processing_mode'].upper()]
-            
+
         return cls(**config_dict)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert configuration to a dictionary.
-        
+
         Returns:
             Dictionary containing configuration values
         """
