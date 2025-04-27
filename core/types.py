@@ -4,8 +4,8 @@ Core types for JPEG2000 processing.
 This module defines the common types and enumerations used
 throughout the JPEG2000 workflow.
 
-Developer Note: 
-    IMPORTANT NOTATION CONVENTION - Compression ratios in this project use the format N:1 
+Developer Note:
+    IMPORTANT NOTATION CONVENTION - Compression ratios in this project use the format N:1
     (e.g., "4:1" or simply "4.0"), while BnF documentation uses 1:N format.
     See docs/NOTATION.md for detailed explanation.
 """
@@ -52,9 +52,9 @@ class BnFCompressionRatio:
     This implementation is provided for educational purposes.
 
     Note on notation: BnF documentation uses the format "1:4", which means "one part compressed
-    to four parts original". However, in this code we use the more common image processing 
-    notation of N:1 (e.g. "4.0" or "4:1"), which means "four parts original to one part 
-    compressed". The numerical values (4.0, 6.0, 16.0) represent the ratio of original size 
+    to four parts original". However, in this code we use the more common image processing
+    notation of N:1 (e.g. "4.0" or "4:1"), which means "four parts original to one part
+    compressed". The numerical values (4.0, 6.0, 16.0) represent the ratio of original size
     to compressed size.
 
     See: https://www.bnf.fr/sites/default/files/2018-11/ref_num_fichier_image_v2.pdf
