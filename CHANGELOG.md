@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed memory-efficient processing trigger logic to properly respect both memory_limit_mb and chunk_size parameters
 - Enhanced chunking mechanism to ensure proper resource utilization during large TIFF processing
 
+## [0.9.2] - 2025-04-28
+
+### Changed
+- Updated package metadata in PyPI distribution for privacy improvements
+- Removed email information from public package metadata
+
 ## [0.9.1] - 2025-04-24
 
 ### Changed
