@@ -14,7 +14,6 @@ setup(
     name="jp2forge",
     version="0.9.1",
     author="xy-liao",
-    author_email="contact@example.com",  # Replace with your actual email
     description="A comprehensive JPEG2000 processing tool with BnF compatibility",
     long_description=long_description,
     long_description_content_type="text/markdown",
