@@ -18,6 +18,7 @@ This guide provides comprehensive instructions for using JP2Forge to convert ima
 12. [Advanced Usage](#12-advanced-usage)
 13. [Examples](#13-examples)
 14. [Technical Reference](#14-technical-reference)
+15. [Release Notes](#15-release-notes)
 
 ## 1. Installation
 
@@ -906,3 +907,11 @@ Processing results include status codes:
 - **WARNING**: Processed but quality metrics below thresholds
 - **FAILURE**: Processing failed, no output file generated
 - **SKIPPED**: File ignored (invalid image or corrupted)
+
+## 15. Release Notes
+
+JP2Forge maintains detailed release notes for each version, documenting all changes, improvements, and fixes. Access the complete release history here:
+
+- [JP2Forge Release Notes Index](./releases/index.md)
+
+The latest release is version 0.9.2, which includes metadata privacy improvements and build process enhancements.
