@@ -34,6 +34,7 @@ JP2Forge is a comprehensive solution for converting images to JPEG2000 format wi
 10. [Troubleshooting](#troubleshooting)
 11. [Intellectual Property](#intellectual-property)
 12. [Project Architecture](#project-architecture)
+13. [Web Interface](#web-interface)
 
 ## Overview
 
@@ -671,9 +672,13 @@ The project follows a modular architecture with well-defined components:
 
 For a detailed visual representation of the architecture and workflow, see the [JP2Forge Workflow Diagram](jp2forge-workflow.md).
 
+## Web Interface
+
+For a web-based interface to JP2Forge, check out [JP2Forge Web](https://github.com/xy-liao/jp2forge_web). Note that this is a case study implementation showcasing selected functionality of the more comprehensive JP2Forge tool.
+
 ## Project Origin and Implementation
 
-JP2Forge is created by [xy-liao](https://github.com/xy-liao) and implements the JPEG2000 standard with BnF (Bibliothèque nationale de France) compliance. The implementation follows the technical specifications described in BnF reference documents.
+JP2Forge was created by [xy-liao](https://github.com/xy-liao) and implements the JPEG2000 standard with BnF (Bibliothèque nationale de France) compliance. The implementation follows the technical specifications described in BnF reference documents.
 
 ### Implementation Note
 

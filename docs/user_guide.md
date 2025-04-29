@@ -19,6 +19,7 @@ This guide provides comprehensive instructions for using JP2Forge to convert ima
 13. [Examples](#13-examples)
 14. [Technical Reference](#14-technical-reference)
 15. [Release Notes](#15-release-notes)
+16. [Web Interface](#16-web-interface)
 
 ## 1. Installation
 
@@ -915,3 +916,70 @@ JP2Forge maintains detailed release notes for each version, documenting all chan
 - [JP2Forge Release Notes Index](./releases/index.md)
 
 The latest release is version 0.9.2, which includes metadata privacy improvements and build process enhancements.
+
+## 16. Web Interface
+
+For a web-based interface to JP2Forge, check out [JP2Forge Web](https://github.com/xy-liao/jp2forge_web). This is a case study implementation that showcases selected functionality of the more comprehensive JP2Forge tool.
+
+## 17. Technical Reference
+
+### 17.1 BnF JPEG2000 Parameters
+
+When using `--bnf-compliant`, the following parameters are applied:
+
+- **Compression**: Irreversible (9-7 floating transform, ICT)
+- **Compression Ratios**:
+  - Specialized documents: 1:4
+  - Exceptional documents: 1:4
+  - Standard printed documents: 1:6
+  - Grayscale transparent documents: 1:16
+- **Tolerance**: 5% (configurable)
+- **Fallback**: Lossless compression (5-3 integer transform, RCT) for files outside tolerance
+- **Resolution Levels**: 10
+- **Quality Levels**: 10
+- **Progression Order**: RPCL (Resolution-Position-Component-Layer)
+- **Robustness Markers**: SOP, EPH, PLT
+- **Code Block Size**: 64x64
+- **Tile Size**: 1024x1024
+- **Precinct Size**: {256,256},{256,256},{128,128}
+
+### 17.2 BnF Metadata Structure
+
+Required XMP metadata in UUID box:
+
+- `dcterms:isPartOf`: Document identifier (e.g., "NUM_123456")
+- `dcterms:provenance`: Document owner (e.g., "Bibliothèque nationale de France")
+- `dc:relation`: ARK identifier (e.g., "ark:/12148/cb123456789")
+- `dc:source`: Original document call number (e.g., "FOL-Z-123")
+- `tiff:Model`: Device model used for digitization
+- `tiff:Make`: Device manufacturer
+- `aux:SerialNumber`: Device serial number
+- `xmp:CreatorTool`: Software used for creation
+- `xmp:CreateDate`: Creation date (ISO-8601 format)
+- `xmp:ModifyDate`: Last modification date (ISO-8601 format)
+- `tiff:Artist`: Digitization operator or organization
+
+### 17.3 Quality Metrics
+
+JP2Forge calculates several quality metrics:
+
+- **PSNR**: Peak Signal-to-Noise Ratio (higher is better)
+  - > 40 dB: Excellent quality
+  - 30-40 dB: Good quality
+  - < 30 dB: Medium to low quality
+
+- **SSIM**: Structural Similarity Index (higher is better)
+  - > 0.95: Excellent structural preservation
+  - 0.90-0.95: Good structural preservation
+  - < 0.90: More significant structural changes
+
+- **MSE**: Mean Square Error (lower is better)
+
+### 17.4 Status Codes
+
+Processing results include status codes:
+
+- **SUCCESS**: Successfully processed with all quality metrics above thresholds
+- **WARNING**: Processed but quality metrics below thresholds
+- **FAILURE**: Processing failed, no output file generated
+- **SKIPPED**: File ignored (invalid image or corrupted)
