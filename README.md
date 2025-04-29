@@ -113,11 +113,37 @@ Required external tools:
 
 If using the `--use-kakadu` option, Kakadu Software must be separately acquired and installed.
 
-### Conda Environment (Recommended)
+### Using Python venv (Recommended for Most Users)
+
+Python's built-in virtual environment tool is lightweight and perfect for most use cases:
 
 ```bash
 # Clone repository
-git clone https://github.com/xy-liao/jp2forge
+git clone https://github.com/xy-liao/jp2forge.git
+cd jp2forge
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+pip install jpylyzer
+```
+
+**Advantages of venv:**
+- Built into Python, no additional installation required
+- Lightweight and simple to use
+- Perfect for development and most production uses
+- Isolates project dependencies from system Python
+
+### Using Conda (Recommended for Complex Environments)
+
+Conda is excellent for managing complex dependencies, especially when you need specific versions of scientific libraries:
+
+```bash
+# Clone repository
+git clone https://github.com/xy-liao/jp2forge.git
 cd jp2forge
 
 # Create and activate conda environment
@@ -126,14 +152,20 @@ conda activate jp2forge
 
 # Install dependencies
 conda install -c conda-forge pillow numpy psutil exiftool lxml pyyaml
-pip install jpylyzer
+pip install jpylyzer structlog
 ```
+
+**Advantages of conda:**
+- Better handling of complex binary dependencies
+- Often easier to install packages with C extensions
+- Can manage both Python and non-Python dependencies
+- Useful for environments with specific version requirements
 
 ### Standard Installation
 
 ```bash
 # Clone repository
-git clone https://github.com/xy-liao/jp2forge
+git clone https://github.com/xy-liao/jp2forge.git
 cd jp2forge
 
 # Install Python dependencies
