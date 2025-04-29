@@ -33,7 +33,9 @@ This guide provides comprehensive instructions for using JP2Forge to convert ima
 
 ### 1.2 Installing JP2Forge
 
-#### Using Python venv
+#### Using Python venv (Recommended for Most Users)
+
+Python's built-in virtual environment tool is lightweight and perfect for most use cases:
 
 ```bash
 # Clone repository
@@ -48,7 +50,15 @@ source venv/bin/activate  # On Windows, use: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-#### Using Conda (Recommended)
+**Advantages of venv:**
+- Built into Python, no additional installation required
+- Lightweight and simple to use
+- Perfect for development and most production uses
+- Isolates project dependencies from system Python
+
+#### Using Conda (Recommended for Complex Environments)
+
+Conda is excellent for managing complex dependencies, especially when you need specific versions of scientific libraries:
 
 ```bash
 # Clone repository
@@ -61,7 +71,14 @@ conda activate jp2forge
 
 # Install dependencies
 conda install -c conda-forge pillow numpy psutil exiftool lxml pyyaml
+pip install jpylyzer structlog
 ```
+
+**Advantages of conda:**
+- Better handling of complex binary dependencies
+- Often easier to install packages with C extensions
+- Can manage both Python and non-Python dependencies
+- Useful for environments with specific version requirements
 
 #### Standard Installation
 
