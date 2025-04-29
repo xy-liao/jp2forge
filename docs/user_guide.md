@@ -33,6 +33,21 @@ This guide provides comprehensive instructions for using JP2Forge to convert ima
 
 ### 1.2 Installing JP2Forge
 
+#### Using Python venv
+
+```bash
+# Clone repository
+git clone https://github.com/xy-liao/jp2forge.git
+cd jp2forge
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
 #### Using Conda (Recommended)
 
 ```bash
