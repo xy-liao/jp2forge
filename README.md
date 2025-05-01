@@ -35,6 +35,7 @@ JP2Forge is a comprehensive solution for converting images to JPEG2000 format wi
 11. [Intellectual Property](#intellectual-property)
 12. [Project Architecture](#project-architecture)
 13. [Web Interface](#web-interface)
+14. [Contributing](#contributing)
 
 ## Overview
 
@@ -706,54 +707,33 @@ For a detailed visual representation of the architecture and workflow, see the [
 
 ## Web Interface
 
-For a web-based interface to JP2Forge, check out [JP2Forge Web](https://github.com/xy-liao/jp2forge_web). Note that this is a case study implementation showcasing selected functionality of the more comprehensive JP2Forge tool.
+JP2Forge has a companion web interface project called [JP2Forge Web](https://github.com/xy-liao/jp2forge_web). This is a limited implementation that provides a user-friendly way to interact with JP2Forge functionality through a web browser.
 
-## Project Origin and Implementation
+Key differences between JP2Forge and JP2Forge Web:
+- **Scope**: JP2Forge Web focuses on core BnF compliance features, while JP2Forge provides the complete feature set
+- **Usage**: JP2Forge Web offers a simple web interface, while JP2Forge is a comprehensive command-line tool
+- **Target Audience**: JP2Forge Web is for users seeking a simple interface, while JP2Forge is for power users needing full control
 
-JP2Forge was created by [xy-liao](https://github.com/xy-liao) and implements the JPEG2000 standard with BnF (Bibliothèque nationale de France) compliance. The implementation follows the technical specifications described in BnF reference documents.
+For more details, see [INTEGRATION_WITH_JP2FORGE_WEB.md](INTEGRATION_WITH_JP2FORGE_WEB.md).
 
-### Implementation Note
+## Contributing
 
-JP2Forge is an independent implementation of the JPEG2000 standard with BnF compliance. It is not based on or derived from OpenJPEG's implementation. Instead, it relies on either Pillow or Kakadu (if available) for actual JPEG2000 encoding/decoding operations.
+Contributions to JP2Forge are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on:
 
-## Technical Specifications (BnF Standards)
+- Setting up your development environment
+- Coding standards and guidelines
+- Metadata handling guidelines
+- Testing requirements
+- Pull request process
 
-### BnF JPEG2000 Parameters
-
-- **Compression**: Irreversible (9-7 floating transform, ICT)
-- **Compression Ratios**:
-  - Specialized documents: 4:1
-  - Exceptional documents: 4:1
-  - Standard printed documents: 6:1
-  - Grayscale transparent documents: 16:1
-- **Tolerance**: 5% (configurable)
-- **Fallback**: Lossless compression (5-3 integer transform, RCT) for files outside tolerance
-- **Resolution Levels**: 10
-- **Quality Levels**: 10
-- **Progression Order**: RPCL (Resolution-Position-Component-Layer)
-- **Robustness Markers**: SOP, EPH, PLT
-- **Code Block Size**: 64x64
-- **Tile Size**: 1024x1024
-- **Precinct Size**: {256,256},{256,256},{128,128}
-
-### BnF Metadata Structure
-
-Required XMP metadata in UUID box (BE7ACFCB97A942E89C71999491E3AFAC):
-- `dcterms:isPartOf`: Document identifier (e.g., "NUM_123456")
-- `dcterms:provenance`: Document owner (e.g., "Bibliothèque nationale de France")
-- `dc:relation`: ARK identifier (e.g., "ark:/12148/cb123456789")
-- `dc:source`: Original document call number (e.g., "FOL-Z-123")
-- `tiff:Model`: Device model used for digitization
-- `tiff:Make`: Device manufacturer
-- `aux:SerialNumber`: Device serial number
-- `xmp:CreatorTool`: Software used for creation
-- `xmp:CreateDate`: Creation date (ISO-8601 format)
-- `xmp:ModifyDate`: Last modification date (ISO-8601 format)
-- `tiff:Artist`: Digitization operator or organization
+JP2Forge is actively maintained, and we appreciate bug reports, feature suggestions, and code contributions that help improve the project.
 
 ## Project Origin and Acknowledgments
 
-JP2Forge was created by [xy-liao](https://github.com/xy-liao) and was inspired by the BnF (Bibliothèque nationale de France) image format specifications. The implementation follows the technical requirements described in their reference documents.
+JP2Forge was created by [xy-liao](https://github.com/xy-liao) as the original author and maintainer. The project was inspired by the BnF (Bibliothèque nationale de France) image format specifications. The implementation follows the technical requirements described in their reference documents:
+
+- BnF Referential (2015): "Référentiel de format de fichier image v2" - [PDF](https://www.bnf.fr/sites/default/files/2018-11/ref_num_fichier_image_v2.pdf)
+- BnF Documentation (2021): "Formats de données pour la préservation à long terme" - [PDF](https://www.bnf.fr/sites/default/files/2021-04/politiqueFormatsDePreservationBNF_20210408.pdf)
 
 ### Implementation Note
 
