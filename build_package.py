@@ -43,12 +43,24 @@ def build_package():
 
 def check_version():
     """Ensure version numbers are consistent."""
-    # Import version from package
-    sys.path.insert(0, os.path.abspath('.'))
+    # Extract version from __init__.py directly
+    init_version = None
     try:
-        from jp2forge import __version__ as init_version
-    except ImportError:
-        print("❌ Could not import version from __init__.py")
+        with open("__init__.py", "r") as f:
+            for line in f:
+                if line.startswith("__version__"):
+                    # Extract version string from __version__ = "0.9.2"
+                    version_str = line.split("=")[1].strip()
+                    if '"' in version_str:
+                        init_version = version_str.split('"')[1]
+                    elif "'" in version_str:
+                        init_version = version_str.split("'")[1]
+                    break
+        if init_version is None:
+            print("❌ Could not find __version__ in __init__.py")
+            return False
+    except Exception as e:
+        print(f"❌ Error reading __init__.py: {e}")
         return False
     
     # Extract version from setup.py
@@ -92,6 +104,18 @@ def main():
         print("Please ensure versions in __init__.py and setup.py match before building.")
         sys.exit(1)
     
+    # Extract version for later use
+    init_version = None
+    with open("__init__.py", "r") as f:
+        for line in f:
+            if line.startswith("__version__"):
+                version_str = line.split("=")[1].strip()
+                if '"' in version_str:
+                    init_version = version_str.split('"')[1]
+                elif "'" in version_str:
+                    init_version = version_str.split("'")[1]
+                break
+    
     # Step 2: Clean dist directory
     clean_dist_directory()
     
@@ -103,11 +127,10 @@ def main():
     print("\nTo upload ONLY the latest version to PyPI:")
     print("  python -m twine upload dist/* --skip-existing")
     print("\nOr, to upload a specific version:")
-    from jp2forge import __version__ as version
-    print(f"  python -m twine upload dist/jp2forge-{version}*")
+    print(f"  python -m twine upload dist/jp2forge-{init_version}*")
     
     print("\nTo install the local build:")
-    print(f"  pip install dist/jp2forge-{version}-py3-none-any.whl")
+    print(f"  pip install dist/jp2forge-{init_version}-py3-none-any.whl")
     
     print("\nBuild process completed successfully! 🎉")
 
