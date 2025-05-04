@@ -513,20 +513,41 @@ def main():
         logger.info(f"Processing single file: {args.input_path}")
 
         result = workflow.process_file(args.input_path)
+        
+        # Create a results dictionary similar to what process_directory returns
+        single_file_results = {
+            'status': result.status,
+            'processed_files': [{
+                'input_file': args.input_path,
+                'output_file': result.output_file,
+                'status': result.status.name,
+                'file_sizes': {
+                    'original_size_human': f"{os.path.getsize(args.input_path) / (1024 * 1024):.2f} MB" if os.path.exists(args.input_path) else "N/A",
+                    'converted_size_human': f"{os.path.getsize(result.output_file) / (1024 * 1024):.2f} MB" if result.output_file and os.path.exists(result.output_file) else "N/A",
+                    'compression_ratio': os.path.getsize(args.input_path) / os.path.getsize(result.output_file) if result.output_file and os.path.exists(result.output_file) and os.path.getsize(result.output_file) > 0 else "N/A"
+                }
+            }],
+            'success_count': 1 if result.status != WorkflowStatus.FAILURE else 0,
+            'warning_count': 0,  # You may want to calculate this based on result
+            'error_count': 1 if result.status == WorkflowStatus.FAILURE else 0,
+            'processing_time': result.processing_time if hasattr(result, 'processing_time') else 0
+        }
+        
+        # Generate validation and reports just like in directory processing
+        validate_output_with_jpylyzer(args.output_dir, args.report_dir)
+        generate_summary_report_with_jpylyzer(single_file_results, config.to_dict(), args.report_dir)
 
         logger.info("-" * 80)
         logger.info(f"Processing status: {result.status.name}")
 
         if result.output_file:
-            logger.info(f"Output file: {result.output_file}")
-            if os.path.exists(result.output_file):
-                orig_size = os.path.getsize(args.input_path) / (1024 * 1024)
-                new_size = os.path.getsize(result.output_file) / (1024 * 1024)
-                compression_ratio = orig_size / new_size if new_size > 0 else 0
+            orig_size = os.path.getsize(args.input_path) / (1024 * 1024)
+            new_size = os.path.getsize(result.output_file) / (1024 * 1024)
+            compression_ratio = orig_size / new_size if new_size > 0 else 0
 
-                logger.info(f"Original size: {orig_size:.2f} MB")
-                logger.info(f"Compressed size: {new_size:.2f} MB")
-                logger.info(f"Achieved compression ratio: {compression_ratio:.2f}:1")
+            logger.info(f"Original size: {orig_size:.2f} MB")
+            logger.info(f"Compressed size: {new_size:.2f} MB")
+            logger.info(f"Achieved compression ratio: {compression_ratio:.2f}:1")
 
         if result.report_file:
             logger.info(f"Report file: {result.report_file}")
