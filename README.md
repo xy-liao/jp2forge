@@ -1,13 +1,15 @@
 # JP2Forge: JPEG2000 Processing Tool
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge) [![Version: 0.9.4](https://img.shields.io/badge/Version-0.9.4-blue.svg)](https://github.com/xy-liao/jp2forge/releases/tag/v0.9.4)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge) [![Version: 0.9.5](https://img.shields.io/badge/Version-0.9.5-blue.svg)](https://github.com/xy-liao/jp2forge/releases/tag/v0.9.5)
 
-**Current Status: Release** - JP2Forge 0.9.4 is now available! This version addresses PyPI project page display issues. See the [Release Notes](docs/releases/RELEASE_NOTES_0.9.4.md) for details.
+**Current Status: Release** - JP2Forge 0.9.5 is now available! This version fixes report generation issues in all processing modes and adds comprehensive testing capabilities. See the [CHANGELOG](CHANGELOG.md) for details.
 
 JP2Forge is a comprehensive solution for converting images to JPEG2000 format with support for both standard and BnF (Bibliothèque nationale de France) compliant workflows. This project implements JPEG2000 processing according to technical specifications published by the Bibliothèque nationale de France (BnF) in their "Référentiel de format de fichier image v2" (2015). This implementation is provided for educational and training purposes to demonstrate standards implementation. All BnF-specific parameters are based on publicly available technical documentation with proper attribution to BnF as the source of these specifications.
 
 ## Recent Updates
 
+- Fixed report generation issues in single file processing mode
+- Added comprehensive test script for validating JP2 conversion in different scenarios
 - Added advanced parallel processing with adaptive worker scaling
 - Implemented memory-efficient streaming image processor for large files
 - Added proper XML processing for metadata with lxml
