@@ -12,7 +12,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="jp2forge",
-    version="0.9.5",
+    version="0.9.5.post1",
     author="xy-liao",
     description="A comprehensive JPEG2000 processing tool with BnF compatibility",
     long_description=long_description,
