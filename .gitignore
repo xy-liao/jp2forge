@@ -111,6 +111,7 @@ venv/
 env/
 ENV/
 jp2_test/
+jp2forge_venv/
 
 # Logs
 *.log
