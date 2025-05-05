@@ -32,6 +32,14 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 pip install jpylyzer
+
+# Install ExifTool (required for metadata operations)
+# macOS:
+brew install exiftool
+# Linux:
+# sudo apt-get install libimage-exiftool-perl
+# Windows:
+# Download from https://exiftool.org/ and follow installation instructions
 ```
 
 ### Basic Usage
@@ -46,6 +54,20 @@ python -m cli.workflow input_dir/ output_dir/ --parallel --max-workers 4
 # BnF-compliant conversion
 python -m cli.workflow input_dir/ output_dir/ --bnf-compliant
 ```
+
+### Verifying Your Installation
+
+To verify that everything is set up correctly:
+
+```bash
+# Make the test script executable
+chmod +x test_jp2forge.sh
+
+# Run the test script
+./test_jp2forge.sh
+```
+
+This test script validates JP2Forge by processing images in three different scenarios and checking the outputs.
 
 ## Key Features
 
