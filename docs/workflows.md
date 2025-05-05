@@ -13,9 +13,9 @@ The standard workflow handles the basic image conversion process:
 
 1. **Input Processing**: Parse input files/directories
 2. **TIFF Handling**: Detect and extract multi-page TIFFs
-3. **Compression**: Convert to JPEG2000 format with memory optimization
-4. **Analysis**: Calculate image quality metrics
-5. **Metadata**: Add required metadata
+3. **Compression**: Convert images to JPEG2000 format using optimal compression parameters
+4. **Quality Analysis**: Evaluate image quality metrics and compression efficiency
+5. **Metadata Handling**: Extract source metadata and embed required JP2 metadata
 6. **Validation**: Validate JP2 compliance
 7. **Reporting**: Generate result reports
 
