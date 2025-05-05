@@ -1,65 +1,41 @@
-# Test Images for JP2Forge
+# Input Directory
 
-## License Information
+This directory contains source TIFF files for processing with jp2forge.
 
-The test images in this directory are licensed under Creative Commons Attribution 4.0 International License (CC BY 4.0), which allows for:
-- Sharing, copying and redistribution
-- Adaptation and transformation
-- Commercial use
+## Contents
 
-When using these images in publications or presentations, please provide appropriate attribution to the original creators.
+This directory should contain image files that will be processed and converted to JPEG2000 format:
+- TIFF files (.tif, .tiff)
+- Other supported image formats depending on configuration
 
-## Image Attribution
+## Example Usage
 
-Here are example CC 4.0 licensed images you can use (replace with your actual chosen images):
+```bash
+python -m cli.workflow input_dir/ output_dir/ --bnf-compliant
+```
 
-- `cc_test_image_01.tif`: "Mountain Landscape" by John Smith (CC BY 4.0) from [source URL]
-- `cc_test_image_02.tif`: "Coastal Sunset" by Jane Doe (CC BY 4.0) from [source URL]
-- `cc_test_image_03.tif`: "Urban Architecture" by Alex Johnson (CC BY 4.0) from [source URL]
+## File Organization
 
-## Test Image Organization
+Files placed in this directory can be:
+- Single or multi-page TIFF files
+- Organized in subdirectories (the directory structure will be preserved in output)
+- Named according to your project's conventions
 
-The images are organized into subdirectories based on size:
-- `small/`: Images less than 2MP
-- `medium/`: Images between 2-10MP 
-- `large/`: Images between 10-50MP
+## Usage Notes
 
-## Usage
+- Input files should be in formats supported by jp2forge (primarily TIFF)
+- Current sample files may vary (e.g., Arkansas Constitution pages)
+- You can add your own test images to this directory for conversion
+- Large files may require additional memory resources
 
-These images are used for testing and benchmarking the JP2Forge library. They provide a standard set of inputs for reproducible performance evaluation.
+## Sample Commands
 
-## For Publishing
+Process all files in the input directory:
+```bash
+python -m cli.workflow input_dir/ output_dir/
+```
 
-These CC 4.0 licensed images can be safely included in published repositories, documentation, and benchmark reports, provided proper attribution is maintained.
-
-## Restricted Images
-
-For development purposes, you may include additional non-CC licensed images in your local copy:
-
-1. Place these images in the same directory structure
-2. Do not commit these images to the repository
-3. The `.gitignore` file is configured to prevent accidental commits of files not matching the CC sample pattern
-
-## How to Add New CC 4.0 Images
-
-To replace the placeholder images with actual CC 4.0 licensed images:
-
-1. Find suitable CC BY 4.0 licensed images
-2. Download and name them according to the convention (cc_test_image_XX.tif)
-3. Place them in the appropriate size directory
-4. Update this README with proper attribution information including:
-   - Image title
-   - Creator name
-   - License (CC BY 4.0)
-   - Source URL
-
-## Converting Image Formats
-
-If your CC 4.0 images are not in TIFF format:
-
-1. Convert them using a tool like ImageMagick:
-   ```
-   convert source_image.jpg cc_test_image_01.tif
-   ```
-2. Ensure conversion preserves the image quality and metadata
-3. Document any conversion steps in your development notes
+Process with specific quality settings:
+```bash
+python -m cli.workflow input_dir/ output_dir/ --quality high
+```
