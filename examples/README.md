@@ -1,105 +1,109 @@
 # JP2Forge Examples
 
-This directory contains example scripts that demonstrate various features and use cases of JP2Forge. These examples are designed to help users understand how to effectively use JP2Forge for different scenarios.
+This directory contains example scripts demonstrating key JP2Forge features and use cases.
 
-## Example Files Overview
+## Quick Reference
+
+| Example Script | Purpose | Key Feature |
+|----------------|---------|-------------|
+| [`multipage_tiff_conversion.py`](#multipage_tiff_conversionpy) | Convert multi-page TIFFs | Page-by-page processing |
+| [`test_all_parameters.py`](#test_all_parameterspy) | Demonstrate all options | Comprehensive configuration |
+| [`test_multipage.py`](#test_multipagepy) | Multi-page options | Memory-efficient handling |
+| [`test_parameter_fixes.py`](#test_parameter_fixespy) | Fix common issues | Problem remediation |
+| [`validate_jp2.py`](#validate_jp2py) | Validate JP2 files | Standards compliance |
+
+## Example Details
 
 ### `multipage_tiff_conversion.py`
 
-Demonstrates how to convert multi-page TIFF files to JPEG2000 format with page-by-page processing.
+**Purpose:** Convert multi-page TIFF files to JPEG2000 with efficient page handling.
 
-**Key features demonstrated:**
-- Multi-page TIFF detection and handling
-- Page extraction and individual processing
-- Memory-efficient processing for large TIFF files
-- Metadata handling for multi-page documents
-
-**Usage:**
 ```bash
 python multipage_tiff_conversion.py path/to/multipage.tif output_directory/
 ```
 
+Key features:
+- ✓ Multi-page TIFF detection
+- ✓ Page extraction and processing
+- ✓ Memory-efficient handling
+- ✓ Page-specific metadata
+
 ### `test_all_parameters.py`
 
-A comprehensive example that demonstrates all available configuration parameters for JP2Forge.
+**Purpose:** Demonstrate all available JP2Forge configuration options.
 
-**Key features demonstrated:**
-- Full range of compression options
-- Document type selection
-- Metadata configuration
-- Advanced JPEG2000 parameters
-
-**Usage:**
 ```bash
 python test_all_parameters.py path/to/input.tif output_directory/
 ```
 
+Key features:
+- ✓ Compression options
+- ✓ Document type selection
+- ✓ Metadata configuration
+- ✓ Advanced JP2 parameters
+
 ### `test_multipage.py`
 
-Tests and demonstrates various options specifically for multi-page TIFF processing.
+**Purpose:** Test multi-page TIFF processing with various options.
 
-**Key features demonstrated:**
-- Chunk size configuration
-- Memory limit settings
-- Page naming options
-- Multi-page specific metadata handling
-
-**Usage:**
 ```bash
 python test_multipage.py path/to/multipage.tif output_directory/ --memory-limit-mb 2048
 ```
 
+Key features:
+- ✓ Chunk size configuration
+- ✓ Memory limit settings
+- ✓ Page naming options
+- ✓ Multi-page metadata handling
+
 ### `test_parameter_fixes.py`
 
-Demonstrates how to use parameter fixes for common issues and edge cases during conversion.
+**Purpose:** Demonstrate fixes for common conversion issues.
 
-**Key features demonstrated:**
-- Color profile handling
-- Correction of problematic images
-- Error recovery options
-- Special case handling for unusual image types
-
-**Usage:**
 ```bash
 python test_parameter_fixes.py path/to/problematic_image.tif output_directory/
 ```
 
+Key features:
+- ✓ Color profile handling
+- ✓ Problematic image correction
+- ✓ Error recovery options
+- ✓ Special case handling
+
 ### `validate_jp2.py`
 
-A utility script to validate JPEG2000 files against various standards and requirements.
+**Purpose:** Validate JPEG2000 files against standards.
 
-**Key features demonstrated:**
-- JPEG2000 validation using jpylyzer
-- BnF compliance checking
-- Metadata validation
-- Structural integrity verification
-
-**Usage:**
 ```bash
 python validate_jp2.py path/to/image.jp2
 ```
 
-## Running the Examples
+Key features:
+- ✓ JP2 validation with jpylyzer
+- ✓ BnF compliance checking
+- ✓ Metadata validation
+- ✓ Structural verification
 
-All example scripts can be run directly from the command line. Most examples accept command-line arguments similar to the main JP2Forge CLI.
+## Usage Tips
 
-For detailed help on any example:
+- Run `python example_name.py --help` for detailed options
+- Examples can be modified and integrated into your own workflows
+- All examples follow JP2Forge best practices
 
-```bash
-python example_name.py --help
+## Integration Example
+
+```python
+from core.types import WorkflowConfig, DocumentType
+from workflow.standard import StandardWorkflow
+
+# Create configuration
+config = WorkflowConfig(
+    output_dir="output_dir/",
+    document_type=DocumentType.PHOTOGRAPH
+)
+
+# Create workflow and process
+workflow = StandardWorkflow(config)
+result = workflow.process_file("input.tif")
+print(f"Conversion completed with status: {result.status}")
 ```
-
-## Integration Examples
-
-These examples can be modified and integrated into your own workflows. The code demonstrates best practices for:
-
-- Configuring JP2Forge programmatically
-- Handling different image types
-- Optimizing for performance and resource usage
-- Implementing custom metadata handling
-
-## Additional Notes
-
-- All examples assume JP2Forge is properly installed and configured
-- External dependencies (such as ExifTool and Kakadu, if used) should be installed separately
-- Some examples may require specific input files to demonstrate their functionality correctly

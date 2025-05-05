@@ -213,12 +213,12 @@ For large projects or multiple datasets, consider organizing your directories by
 ```bash
 project_a/
   ├── input/
-  ├── output/
+  ├── output_dir/
   └── reports/
 
 project_b/
   ├── input/
-  ├── output/
+  ├── output_dir/
   └── reports/
 ```
 

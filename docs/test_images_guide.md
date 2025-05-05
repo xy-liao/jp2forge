@@ -37,7 +37,7 @@ For CC 4.0 images:
 2. **Directory Organization**:
    ```
    benchmark/
-     output/
+     output_dir/
        config_1_rep_1/
          cc_test_image_01.jp2
          cc_test_image_01.jp2.xmp

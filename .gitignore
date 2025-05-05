@@ -165,3 +165,6 @@ CHANGELOG.md.bak.*
 README.md.bak.*
 prepare_for_publish.py
 multipage_conversion.log
+
+# Developer documentation and analysis files
+dev_docs/
