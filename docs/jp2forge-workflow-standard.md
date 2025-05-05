@@ -15,6 +15,7 @@ flowchart TD
         Compressor["JPEG2000Compressor<br/>(core/compressor.py)"]
         Analyzer["ImageAnalyzer<br/>(core/analyzer.py)"]
         MetadataHandler["MetadataHandler<br/>(core/metadata)"]
+        TIFFHandler["TIFFHandler<br/>Multi-page Processing"]
     end
     
     subgraph "Types & Configuration"
@@ -36,6 +37,7 @@ flowchart TD
         ColorProfiles["Color Profile Handling<br/>ICC & Color Space Management"]
         Validation["JP2 Validation<br/>Conformance Checking"]
         Profiling["Performance Profiling<br/>Timing & Memory Analysis"]
+        MemoryEfficient["Memory-Efficient Processing<br/>Chunked Operations"]
     end
     
     %% Connections
@@ -45,9 +47,11 @@ flowchart TD
     StandardWorkflow --> Compressor
     StandardWorkflow --> Analyzer
     StandardWorkflow --> MetadataHandler
+    StandardWorkflow --> TIFFHandler
     ParallelWorkflow --> Compressor
     ParallelWorkflow --> Analyzer
     ParallelWorkflow --> MetadataHandler
+    ParallelWorkflow --> TIFFHandler
     
     CoreTypes --> WorkflowConfig
     WorkflowConfig --> BaseWorkflow
@@ -57,6 +61,11 @@ flowchart TD
     Compressor --> Kakadu
     Compressor --> ImageUtils
     Compressor --> ColorProfiles
+    Compressor --> MemoryEfficient
+    
+    TIFFHandler --> Pillow
+    TIFFHandler --> ImageUtils
+    TIFFHandler --> MemoryEfficient
     
     Analyzer --> Pillow
     Analyzer --> NumPy
@@ -71,7 +80,8 @@ flowchart TD
     %% Process Flow
     CLI -.-> |"Step 1: Parse Args & Config"| WorkflowConfig
     WorkflowConfig -.-> |"Step 2: Init Workflow"| StandardWorkflow
-    StandardWorkflow -.-> |"Step 3: Process Files"| Compressor
+    StandardWorkflow -.-> |"Step 2a: Detect Multi-page"| TIFFHandler
+    TIFFHandler -.-> |"Step 3: Process Pages"| Compressor
     Compressor -.-> |"Step 4: Analyze Quality"| Analyzer
     Analyzer -.-> |"Step 5: Add Metadata"| MetadataHandler
     MetadataHandler -.-> |"Step 6: Generate Reports"| CLI
@@ -81,9 +91,9 @@ classDef external fill:#03a9f4,stroke:#e0e0e0,stroke-width:1px,color:#ffffff;
 classDef utility fill:#ff9800,stroke:#e0e0e0,stroke-width:1px,color:#ffffff;
 classDef interface fill:#f44336,stroke:#e0e0e0,stroke-width:1px,color:#ffffff;
 
-class Compressor,Analyzer,MetadataHandler,CoreTypes core;
+class Compressor,Analyzer,MetadataHandler,CoreTypes,TIFFHandler core;
 class Pillow,NumPy,Psutil,Jpylyzer,ExifTool,Kakadu external;
-class ImageUtils,ColorProfiles,Validation,Profiling utility;
+class ImageUtils,ColorProfiles,Validation,Profiling,MemoryEfficient utility;
 class CLI interface;
 ```
 
@@ -99,6 +109,7 @@ class CLI interface;
 - **Compressor**: Handles JPEG2000 compression operations
 - **Analyzer**: Analyzes image quality and characteristics
 - **MetadataHandler**: Manages metadata embedding and extraction
+- **TIFFHandler**: Manages multi-page TIFF detection and page extraction
 
 ### External Dependencies
 - **Pillow**: Python Imaging Library for basic image operations
@@ -108,9 +119,17 @@ class CLI interface;
 - **ExifTool**: External tool for metadata management
 - **Kakadu**: Optional high-performance JP2 codec
 
+### Utilities
+- **Image Utilities**: Format validation and transformation
+- **Color Profile Handling**: ICC profile and color space management
+- **Validation**: JP2 conformance checking
+- **Profiling**: Performance timing and analysis
+- **Memory-Efficient Processing**: Chunked operations for large images
+
 ### Workflow Steps
 1. Parse arguments and configuration
 2. Initialize appropriate workflow
+2a. Detect multi-page TIFF files
 3. Process input files and compress to JP2
 4. Analyze resulting images for quality
 5. Add metadata to JP2 files

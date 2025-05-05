@@ -85,17 +85,21 @@ flowchart TD
     %% Utility connections
     Compressor --> ImageUtils
     Compressor --> ColorProfiles
+    Compressor --> MemoryEstimator
+    Compressor --> StreamingProcessor
     
     StandardWorkflow --> Validation
     StandardWorkflow --> Profiling
+    StandardWorkflow --> IOUtils
+    StandardWorkflow --> MemoryEstimator
+    
     ParallelWorkflow --> ResourceMonitor
     ParallelWorkflow --> StreamingProcessor
-    
-    StandardWorkflow --> IOUtils
     ParallelWorkflow --> IOUtils
+    ParallelWorkflow --> MemoryEstimator
     
-    Compressor --> MemoryEstimator
     TIFFHandler --> MemoryEstimator
+    TIFFHandler --> StreamingProcessor
     
     %% External dependency connections
     Profiling --> Psutil
@@ -138,16 +142,27 @@ class ReportManager reporting;
 
 ### Core Components
 - **BaseWorkflow**: Abstract base class that defines the common workflow interface and lifecycle methods
-- **StandardWorkflow**: Sequential implementation for simple, single-process image processing
+- **StandardWorkflow**: Sequential implementation for simple, single-process image processing, with support for multi-page TIFF handling and memory-efficient processing
 - **ParallelWorkflow**: Multi-process implementation using process pools for high-throughput processing
-- **Compressor**: Handles JPEG2000 compression with support for multiple encoding backends
+- **Compressor**: Handles JPEG2000 compression with support for multiple encoding backends and memory-efficient processing
 - **Analyzer**: Performs quality assessment and validation of compressed images
 - **MetadataHandler**: Comprehensive metadata management with XMP and custom embedded metadata
+- **TIFFHandler**: Manages multi-page TIFF detection and extraction with memory optimization
 
 ### Resource Management
 - **ResourceMonitor**: Dynamically adjusts worker processes based on CPU and memory usage
 - **MemoryEstimator**: Calculates memory requirements for image processing operations
 - **StreamingProcessor**: Handles large images using tiled processing to reduce memory consumption
+
+### Memory-Efficient Processing
+Memory-efficient processing is implemented in both standard and parallel workflows:
+
+- Available for single images and multi-page TIFFs
+- Memory usage is optimized through chunking large images
+- Controlled via configuration parameters:
+  - `memory_limit_mb`: Maximum memory to use (default: 4096 MB)
+  - `chunk_size`: Size of image chunks to process (default: 1000000 pixels)
+  - `min_chunk_height`: Minimum height of chunks (default: 32 pixels)
 
 ### Configuration System
 - **WorkflowConfig**: Core configuration data structure with validation
@@ -158,14 +173,16 @@ class ReportManager reporting;
 2. **Workflow Initialization**: The appropriate workflow is selected based on configuration
 3. **Resource Allocation**: System resources are analyzed to determine optimal processing parameters
 4. **Processing**: Images are processed using either standard or parallel workflow
-5. **Validation**: Resulting JP2 files are validated against specifications
-6. **Metadata Handling**: Technical and descriptive metadata is embedded in the output files
-7. **Reporting**: Summary and detailed reports are generated for the batch process
+5. **Multi-page Detection**: Multi-page TIFFs are detected and processed page by page
+6. **Memory Optimization**: Large images are processed using memory-efficient techniques
+7. **Quality Analysis**: Resulting JP2 files are analyzed for quality (in supervised mode)
+8. **Metadata Handling**: Technical and descriptive metadata is embedded in the output files
+9. **Reporting**: Summary and detailed reports are generated for the batch process
 
 ### Advanced Features
 - Adaptive resource management for optimal performance
 - Dynamic worker pool scaling based on system load
-- Streaming processing for memory-efficient handling of large files
+- Memory-efficient processing for large images and multi-page TIFFs
 - Comprehensive metadata embedding compliant with various standards
 - Detailed validation and quality analysis reports
 - Support for both Pillow and Kakadu encoding backends
