@@ -6,6 +6,19 @@
 
 JP2Forge converts images to JPEG2000 format with support for standard and BnF (Bibliothèque nationale de France) compliant workflows.
 
+## Current Status and Roadmap
+
+JP2Forge is currently at version 0.9.6 with functional BnF-compliant JPEG2000 conversion capabilities. We have identified several areas for improvement which are documented in our [Implementation Roadmap](docs/implementation_roadmap.md).
+
+Key planned enhancements for upcoming versions include:
+- Automatic BnF validation integration
+- UUID collision detection
+- Comprehensive unit test infrastructure
+- Improved architecture with factory patterns
+- Enhanced documentation
+
+See the [Implementation Roadmap](docs/implementation_roadmap.md) for the complete list of planned improvements and their target versions.
+
 ## What's New (May 2025)
 
 - **🛠️ Improved Documentation**: Streamlined documentation with new [Quick Start Guide](docs/quick_start.md)

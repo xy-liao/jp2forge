@@ -16,6 +16,14 @@ flowchart TD
         Analyzer["ImageAnalyzer<br/>(core/analyzer.py)"]
         MetadataHandler["MetadataHandler<br/>(core/metadata)"]
         TIFFHandler["TIFFHandler<br/>Multi-page Processing"]
+        
+        %% Planned Components (Coming in v1.0.0+)
+        BnFValidator["BnF Validator<br/>(Planned v1.0.0)"]
+        MetadataFactory["MetadataHandlerFactory<br/>(Planned v1.1.0)"]
+        BnFModule["BnF Module<br/>(Planned v1.1.0)"]
+        style BnFValidator stroke-dasharray: 5 5
+        style MetadataFactory stroke-dasharray: 5 5
+        style BnFModule stroke-dasharray: 5 5
     end
     
     subgraph "Types & Configuration"

@@ -5,6 +5,12 @@ All notable changes to JP2Forge will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Upcoming] - Implementation Roadmap Created
+
+- Added comprehensive [Implementation Roadmap](docs/implementation_roadmap.md) outlining planned improvements
+- Identified BnF compliance gaps to be addressed in upcoming releases
+- Scheduled improvements for architecture, testing, and documentation
+
 ## [Unreleased]
 
 ## [0.9.6] - 2025-05-05
