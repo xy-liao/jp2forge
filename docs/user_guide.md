@@ -943,11 +943,11 @@ Processing results include status codes:
 
 ## 15. Release Notes
 
-JP2Forge maintains detailed release notes for each version, documenting all changes, improvements, and fixes. Access the complete release history here:
+JP2Forge maintains detailed release notes for each version, documenting all changes, improvements, and fixes. For the complete release history, please refer to:
 
-- [JP2Forge Release Notes Index](./releases/index.md)
+- [JP2Forge Changelog](../CHANGELOG.md)
 
-The latest release is version 0.9.6, which includes report generation improvements and comprehensive testing capabilities.
+See the changelog for information about the latest release, including new features, improvements, and bug fixes.
 
 ## 16. Web Interface
 

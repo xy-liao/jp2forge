@@ -1,8 +1,10 @@
 # JP2Forge Quick Start Guide
 
-Welcome to JP2Forge! This guide helps you get started quickly with the essential commands.
+Welcome to JP2Forge! This guide provides essential commands to get you started quickly.
 
-## Installation
+> **For Complete Documentation**: This guide contains only basic commands and common options. For detailed instructions, installation options, and advanced features, please refer to the [User Guide](user_guide.md).
+
+## Basic Installation
 
 ```bash
 # Clone repository
@@ -15,8 +17,9 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-pip install jpylyzer
 ```
+
+> **Note**: For detailed installation instructions including conda setup, external dependencies, and system-specific requirements, see the [Installation section](user_guide.md#1-installation) in the User Guide.
 
 ## Basic Commands
 
@@ -44,35 +47,17 @@ python -m cli.workflow input_dir/ output_dir/ --bnf-compliant
 python -m cli.workflow input_dir/ output_dir/ --parallel --max-workers 4
 ```
 
-## Common Options
+## Common Options Reference
 
-| Option | Description | Example |
+| Option | Description | Default |
 |--------|-------------|---------|
-| `--document-type` | Set document type | `--document-type photograph` |
-| `--compression-mode` | Set compression mode | `--compression-mode supervised` |
-| `--metadata` | Specify metadata file | `--metadata metadata.json` |
-| `--verbose` | Enable detailed logging | `--verbose` |
-| `--recursive` | Process subdirectories | `--recursive` |
+| `--document-type` | Set document type | `photograph` |
+| `--compression-mode` | Set compression mode | `supervised` |
+| `--recursive` | Process subdirectories | False |
+| `--parallel` | Enable parallel processing | False |
+| `--bnf-compliant` | Use BnF compliance mode | False |
 
-## Example Workflows
-
-### Convert Photos with Quality Control
-
-```bash
-python -m cli.workflow photos/ output_dir/ --document-type photograph --compression-mode supervised
-```
-
-### Process Historic Documents (BnF Standards)
-
-```bash
-python -m cli.workflow documents/ output_dir/ --bnf-compliant --document-type heritage_document
-```
-
-### Batch Process with Parallel Execution
-
-```bash
-python -m cli.workflow large_collection/ output_dir/ --parallel --max-workers 8 --recursive
-```
+> **Note**: For complete list of options and detailed parameters, see the [Command-Line Interface section](user_guide.md#3-command-line-interface) in the User Guide.
 
 ## Output Location
 
@@ -82,6 +67,7 @@ python -m cli.workflow large_collection/ output_dir/ --parallel --max-workers 8 
 
 ## Next Steps
 
-- See the [User Guide](user_guide.md) for detailed instructions
-- Learn about [BnF Compliance](NOTATION.md) for archival standards
-- Check [Troubleshooting](user_guide.md#11-troubleshooting) for common issues
+- [User Guide](user_guide.md): Comprehensive documentation of all features
+- [BnF Compliance](NOTATION.md): Archival standards information
+- [Troubleshooting](user_guide.md#11-troubleshooting): Solutions for common issues
+- [Example Workflows](user_guide.md#13-examples): Common use case examples
