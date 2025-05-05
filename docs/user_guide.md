@@ -947,7 +947,7 @@ JP2Forge maintains detailed release notes for each version, documenting all chan
 
 - [JP2Forge Release Notes Index](./releases/index.md)
 
-The latest release is version 0.9.2, which includes metadata privacy improvements and build process enhancements.
+The latest release is version 0.9.6, which includes report generation improvements and comprehensive testing capabilities.
 
 ## 16. Web Interface
 

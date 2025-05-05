@@ -395,7 +395,7 @@ def main():
         try:
             version = pkg_resources.get_distribution("jp2forge").version
         except pkg_resources.DistributionNotFound:
-            version = "0.9.1"  # Default version if not installed as package
+            version = "0.9.6"  # Default version if not installed as package
         print(f"JP2Forge version {version}")
         return 0
 
