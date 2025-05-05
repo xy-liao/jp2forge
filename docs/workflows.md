@@ -98,4 +98,4 @@ flowchart TD
 | **MetadataHandler** | Metadata operations | XMP generation, BnF compliance |
 | **ReportManager** | Output generation | File reports, batch summaries |
 
-For detailed visual workflow diagrams, see the [Workflow Diagrams](workflow_diagram.md) document, which includes standard, BnF compliance, memory-efficient, and parallel processing flows.
+For detailed visual workflow diagrams, see the [Workflow Diagrams](/Users/syl/Documents/GitHub/jp2forge/docs/workflow_diagram.md) document, which includes standard, BnF compliance, memory-efficient, and parallel processing flows.
