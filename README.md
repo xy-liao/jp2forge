@@ -68,6 +68,8 @@ python -m cli.workflow input_dir/ output_dir/ --parallel --max-workers 4
 python -m cli.workflow input_dir/ output_dir/ --bnf-compliant
 ```
 
+For a comprehensive reference of all available command-line options, see the [CLI Reference](docs/cli_reference.md).
+
 ### Verifying Your Installation
 
 To verify that everything is set up correctly:
@@ -96,6 +98,7 @@ This test script validates JP2Forge by processing images in three different scen
 | Document | Description |
 |----------|-------------|
 | [User Guide](docs/user_guide.md) | Comprehensive guide for end users |
+| [CLI Reference](docs/cli_reference.md) | Complete command-line interface reference |
 | [Developer Guide](docs/developer_guide.md) | Information for developers and contributors |
 | [Architecture](docs/architecture.md) | System architecture and design |
 | [BnF Compliance](docs/NOTATION.md) | Details about BnF compliance features |
@@ -133,6 +136,8 @@ python -m cli.workflow input_dir/ output_dir/ --bnf-compliant --metadata bnf_met
 ```
 
 ## Common Options
+
+For a complete list of all options, see the [CLI Reference](docs/cli_reference.md).
 
 | Option | Description |
 |--------|-------------|

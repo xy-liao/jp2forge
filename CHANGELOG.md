@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Comprehensive [CLI Reference](docs/cli_reference.md) documentation covering all command-line arguments
+- Updated user guide with expanded information on compression modes and document types
+- Improved documentation consistency between implementation and documentation
+- Enhanced user guide sections on BnF compression ratios for different document types
+
 ## [0.9.6] - 2025-05-05
 
 ### Fixed

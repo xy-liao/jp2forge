@@ -166,13 +166,17 @@ Where:
 - `<input_path>`: Path to an image file or directory
 - `<output_directory>`: Directory where converted images will be saved
 
+> **Note**: For a comprehensive list of all available arguments, see the [CLI Reference](cli_reference.md) document.
+
 ### 3.2 Common Options
+
+Below are the most frequently used options. For a complete reference of all available options, see the [CLI Reference](cli_reference.md).
 
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--recursive` | Process subdirectories recursively | False |
 | `--parallel` | Enable parallel processing | False |
-| `--compression-mode` | Compression mode (`lossless`, `lossy`, `supervised`) | `supervised` |
+| `--compression-mode` | Compression mode (`lossless`, `lossy`, `supervised`, `bnf_compliant`) | `supervised` |
 | `--document-type` | Document type (`photograph`, `heritage_document`, `color`, `grayscale`) | `photograph` |
 | `--quality` | Quality level (0-100) for lossy compression | 40.0 |
 | `--verbose` | Enable verbose output | False |
@@ -300,6 +304,8 @@ python -m cli.workflow input.tif output_dir/
 
 ### 5.2 Compression Modes
 
+JP2Forge offers several compression modes to meet different needs:
+
 #### 5.2.1 Supervised Mode (Default)
 
 Quality-controlled compression that analyzes results:
@@ -309,6 +315,8 @@ python -m cli.workflow input.tif output_dir/ \
   --compression-mode supervised \
   --quality-threshold 40.0
 ```
+
+In supervised mode, JP2Forge analyzes the compressed image quality and can fallback to lossless compression if quality requirements aren't met.
 
 #### 5.2.2 Lossy Mode
 
@@ -320,6 +328,8 @@ python -m cli.workflow input.tif output_dir/ \
   --quality 50
 ```
 
+Lossy mode prioritizes smaller file sizes at the expense of some image quality. The quality parameter controls the balance between size and quality.
+
 #### 5.2.3 Lossless Mode
 
 No quality loss, but larger file size:
@@ -329,9 +339,22 @@ python -m cli.workflow input.tif output_dir/ \
   --compression-mode lossless
 ```
 
+Lossless mode guarantees that no image information is lost during compression, but results in larger files.
+
+#### 5.2.4 BnF Compliant Mode
+
+Follows Bibliothèque nationale de France standards:
+
+```bash
+python -m cli.workflow input.tif output_dir/ \
+  --compression-mode bnf_compliant
+```
+
+This mode applies fixed compression ratios and parameters according to BnF specifications. See section 6 for more details on BnF compliance.
+
 ### 5.3 Document Types
 
-Select the appropriate document type for optimal results:
+Select the appropriate document type for optimal results. Document types influence compression parameters, especially in BnF compliant mode.
 
 #### 5.3.1 Photograph
 
@@ -342,6 +365,8 @@ python -m cli.workflow input.tif output_dir/ \
   --document-type photograph
 ```
 
+In BnF compliant mode, photographs use a 1:4 compression ratio (4:1 in JP2Forge notation).
+
 #### 5.3.2 Heritage Document
 
 For historical documents with high detail:
@@ -350,6 +375,8 @@ For historical documents with high detail:
 python -m cli.workflow input.tif output_dir/ \
   --document-type heritage_document
 ```
+
+In BnF compliant mode, heritage documents use a 1:4 compression ratio (4:1 in JP2Forge notation).
 
 #### 5.3.3 Color
 
@@ -360,6 +387,8 @@ python -m cli.workflow input.tif output_dir/ \
   --document-type color
 ```
 
+In BnF compliant mode, color documents use a 1:6 compression ratio (6:1 in JP2Forge notation).
+
 #### 5.3.4 Grayscale
 
 For grayscale documents:
@@ -368,6 +397,8 @@ For grayscale documents:
 python -m cli.workflow input.tif output_dir/ \
   --document-type grayscale
 ```
+
+In BnF compliant mode, grayscale documents use a 1:16 compression ratio (16:1 in JP2Forge notation).
 
 ## 6. BnF Compliance
 
