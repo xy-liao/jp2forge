@@ -124,20 +124,17 @@ For a complete list of all options, see the [CLI Reference](docs/cli_reference.m
 
 ## Current Status and Roadmap
 
-JP2Forge is currently at version 0.9.6 with functional BnF-compliant JPEG2000 conversion capabilities. We have identified several areas for improvement which are documented in our [Implementation Roadmap](docs/implementation_roadmap.md).
+JP2Forge is currently at version 0.9.6 with functional BnF-compliant JPEG2000 conversion capabilities. The project continues to evolve with planned enhancements including:
 
-Key planned enhancements for upcoming versions include:
 - Automatic BnF validation integration
 - UUID collision detection
 - Comprehensive unit test infrastructure
 - Improved architecture with factory patterns
 - Enhanced documentation
 
-See the [Implementation Roadmap](docs/implementation_roadmap.md) for the complete list of planned improvements and their target versions.
-
 ## What's New (May 2025)
 
-- **🛠️ Improved Documentation**: Streamlined documentation with new [Quick Start Guide](docs/quick_start.md)
+- **🛠️ Improved Documentation**: Streamlined documentation structure
 - **🐛 Bug Fixes**: Fixed report generation issues in all processing modes
 - **🧪 Testing**: Added comprehensive test script for validating JP2 conversion
 - **💾 Memory Optimizations**: Enhanced chunking mechanism for large TIFF processing

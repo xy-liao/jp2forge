@@ -207,3 +207,4 @@ benchmark/
 .mypy_cache/
 jp2forge.egg-info/
 dist/
+DOCUMENTATION_LINKS_VERIFIED.md
