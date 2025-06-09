@@ -166,5 +166,44 @@ README.md.bak.*
 prepare_for_publish.py
 multipage_conversion.log
 
-# Developer documentation and analysis files
+# Development documentation and analysis files
 dev_docs/
+
+# === NEW ADDITIONS FOR GITHUB SYNC ===
+
+# Documentation archive (development reference only)
+docs_archive/
+DOCUMENTATION_STRUCTURE.md
+GITHUB_SYNC_RECOMMENDATIONS.md
+
+# Legacy documentation files (replaced by streamlined versions)
+docs/IP_CONSIDERATIONS.md
+docs/code_quality_checklist.md
+docs/glossary.md
+docs/implementation_schedule.md
+docs/index.md
+docs/jp2forge-workflow-advanced.md
+docs/jp2forge-workflow-standard.md
+docs/jpylyzer_integration.md
+docs/memory_efficient_processing.md
+docs/performance_benchmarks.md
+docs/quick_start.md
+docs/releases/
+docs/workflow_diagram.md
+docs/workflows.md
+
+# Development utilities (not needed for end users)
+build_package.py
+check_dependencies.py
+cleanup.py
+
+# Working directories (contain generated/test content)
+input_dir/
+output_dir/
+reporting/
+benchmark/
+
+# Development-specific directories
+.mypy_cache/
+jp2forge.egg-info/
+dist/

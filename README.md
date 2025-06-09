@@ -6,29 +6,6 @@
 
 JP2Forge converts images to JPEG2000 format with support for standard and BnF (Bibliothèque nationale de France) compliant workflows.
 
-## Current Status and Roadmap
-
-JP2Forge is currently at version 0.9.6 with functional BnF-compliant JPEG2000 conversion capabilities. We have identified several areas for improvement which are documented in our [Implementation Roadmap](docs/implementation_roadmap.md).
-
-Key planned enhancements for upcoming versions include:
-- Automatic BnF validation integration
-- UUID collision detection
-- Comprehensive unit test infrastructure
-- Improved architecture with factory patterns
-- Enhanced documentation
-
-See the [Implementation Roadmap](docs/implementation_roadmap.md) for the complete list of planned improvements and their target versions.
-
-## What's New (May 2025)
-
-- **🛠️ Improved Documentation**: Streamlined documentation with new [Quick Start Guide](docs/quick_start.md)
-- **🐛 Bug Fixes**: Fixed report generation issues in all processing modes
-- **🧪 Testing**: Added comprehensive test script for validating JP2 conversion
-- **💾 Memory Optimizations**: Enhanced chunking mechanism for large TIFF processing
-- **📊 Performance**: Fixed memory-efficient processing trigger logic
-
-[View all changes →](CHANGELOG.md)
-
 ## Quick Start
 
 ### Installation
@@ -68,8 +45,6 @@ python -m cli.workflow input_dir/ output_dir/ --parallel --max-workers 4
 python -m cli.workflow input_dir/ output_dir/ --bnf-compliant
 ```
 
-For a comprehensive reference of all available command-line options, see the [CLI Reference](docs/cli_reference.md).
-
 ### Verifying Your Installation
 
 To verify that everything is set up correctly:
@@ -100,10 +75,9 @@ This test script validates JP2Forge by processing images in three different scen
 | [User Guide](docs/user_guide.md) | Comprehensive guide for end users |
 | [CLI Reference](docs/cli_reference.md) | Complete command-line interface reference |
 | [Developer Guide](docs/developer_guide.md) | Information for developers and contributors |
-| [Architecture](docs/architecture.md) | System architecture and design |
-| [BnF Compliance](docs/NOTATION.md) | Details about BnF compliance features |
-| [API Examples](examples/README.md) | Code examples for API usage |
-| [Release Notes](docs/releases/index.md) | Version history and changes |
+| [API Reference](docs/api_reference.md) | Core classes and functions reference |
+| [BnF Compliance](docs/bnf_compliance.md) | Details about BnF compliance features |
+| [Examples](examples/README.md) | Code examples for API usage |
 
 ## Command Reference
 
@@ -147,6 +121,29 @@ For a complete list of all options, see the [CLI Reference](docs/cli_reference.m
 | `--verbose` | Enable detailed logging |
 | `--log-file PATH` | Save logs to file |
 | `--config PATH` | Use configuration file |
+
+## Current Status and Roadmap
+
+JP2Forge is currently at version 0.9.6 with functional BnF-compliant JPEG2000 conversion capabilities. We have identified several areas for improvement which are documented in our [Implementation Roadmap](docs/implementation_roadmap.md).
+
+Key planned enhancements for upcoming versions include:
+- Automatic BnF validation integration
+- UUID collision detection
+- Comprehensive unit test infrastructure
+- Improved architecture with factory patterns
+- Enhanced documentation
+
+See the [Implementation Roadmap](docs/implementation_roadmap.md) for the complete list of planned improvements and their target versions.
+
+## What's New (May 2025)
+
+- **🛠️ Improved Documentation**: Streamlined documentation with new [Quick Start Guide](docs/quick_start.md)
+- **🐛 Bug Fixes**: Fixed report generation issues in all processing modes
+- **🧪 Testing**: Added comprehensive test script for validating JP2 conversion
+- **💾 Memory Optimizations**: Enhanced chunking mechanism for large TIFF processing
+- **📊 Performance**: Fixed memory-efficient processing trigger logic
+
+[View all changes →](CHANGELOG.md)
 
 ## Troubleshooting
 
