@@ -1,5 +1,7 @@
 # JP2Forge
 
+> **Developer-oriented repository** - For a user-friendly version, visit: https://gitlab.huma-num.fr/sliao/jp2forge
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge) [![Version: 0.9.6](https://img.shields.io/badge/Version-0.9.6-blue.svg)](https://github.com/xy-liao/jp2forge/releases/tag/v0.9.6)
 
 **Current Status: Release** - JP2Forge 0.9.6 is now available! This version fixes report generation issues in all processing modes and adds comprehensive testing capabilities. See the [CHANGELOG](CHANGELOG.md) for details.
