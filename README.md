@@ -156,6 +156,10 @@ Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING
 
 JP2Forge is released under the MIT License.
 
+## Related Project
+
+- **[JP2Forge Web](https://github.com/xy-liao/jp2forge_web)**: A web interface for the JP2Forge JPEG2000 conversion library.
+
 ## Acknowledgments
 
 This project follows technical requirements described in BnF reference documents:
