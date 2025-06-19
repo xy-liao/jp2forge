@@ -135,6 +135,7 @@ For a complete list of all options, see the [CLI Reference](docs/cli_reference.m
 | `--verbose` | Enable detailed logging |
 | `--log-file PATH` | Save logs to file |
 | `--config PATH` | Use configuration file |
+| `--full-report` | Generate detailed reports with quality metrics |
 
 ## Current Status and Roadmap
 

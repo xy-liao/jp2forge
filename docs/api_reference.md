@@ -469,6 +469,22 @@ class BnFCompressionRatio:
         """Get BnF compression ratio for document type."""
 ```
 
+## CLI Integration
+
+### Full Report Flag
+
+The `--full-report` CLI flag enables enhanced reporting with detailed quality metrics:
+
+```bash
+python -m cli.workflow input/ output/ --full-report
+```
+
+When enabled, reports include:
+- Quality metrics from `AnalysisResult`: PSNR, SSIM, MSE
+- Processing performance data
+- Memory usage statistics
+- Enhanced BnF compliance information
+
 ## Usage Examples
 
 ### Basic Image Conversion

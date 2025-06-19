@@ -82,6 +82,7 @@ Where:
 | `--loglevel {DEBUG,INFO,WARNING,ERROR,CRITICAL}` | Logging level | `INFO` |
 | `--debug` | Enable debug mode (shorthand for --loglevel=DEBUG) | |
 | `--report-dir` | Directory for analysis reports | `reports` |
+| `--full-report` | Generate detailed reports with quality metrics, processing times, and enhanced validation | `False` |
 | `--strict` | Enable strict mode for error handling | `False` |
 
 ## Environment Variables
@@ -132,4 +133,7 @@ python -m cli.workflow input_dir/ output_dir/ --parallel --adaptive-workers --mi
 
 # BnF compliant with metadata
 python -m cli.workflow input_dir/ output_dir/ --bnf-compliant --metadata metadata.json
+
+# Full report with detailed quality metrics
+python -m cli.workflow input_dir/ output_dir/ --full-report --parallel --max-workers 4
 ```
