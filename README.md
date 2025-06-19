@@ -2,9 +2,7 @@
 
 > **Developer-oriented repository** - For a user-friendly version, visit: https://gitlab.huma-num.fr/sliao/jp2forge
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge) [![Version: 0.9.6](https://img.shields.io/badge/Version-0.9.6-blue.svg)](https://github.com/xy-liao/jp2forge/releases/tag/v0.9.6)
-
-**Current Status: Release** - JP2Forge 0.9.6 is now available! This version fixes report generation issues in all processing modes and adds comprehensive testing capabilities. See the [CHANGELOG](CHANGELOG.md) for details.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge)
 
 JP2Forge converts images to JPEG2000 format with support for standard and BnF (Bibliothèque nationale de France) compliant workflows.
 
@@ -126,7 +124,7 @@ For a complete list of all options, see the [CLI Reference](docs/cli_reference.m
 
 ## Current Status and Roadmap
 
-JP2Forge is currently at version 0.9.6 with functional BnF-compliant JPEG2000 conversion capabilities. The project continues to evolve with planned enhancements including:
+JP2Forge provides functional BnF-compliant JPEG2000 conversion capabilities. The project continues to evolve with planned enhancements including:
 
 - Automatic BnF validation integration
 - UUID collision detection
@@ -134,23 +132,10 @@ JP2Forge is currently at version 0.9.6 with functional BnF-compliant JPEG2000 co
 - Improved architecture with factory patterns
 - Enhanced documentation
 
-## What's New (May 2025)
-
-- **🛠️ Improved Documentation**: Streamlined documentation structure
-- **🐛 Bug Fixes**: Fixed report generation issues in all processing modes
-- **🧪 Testing**: Added comprehensive test script for validating JP2 conversion
-- **💾 Memory Optimizations**: Enhanced chunking mechanism for large TIFF processing
-- **📊 Performance**: Fixed memory-efficient processing trigger logic
-
-[View all changes →](CHANGELOG.md)
-
 ## Troubleshooting
 
 See the [Troubleshooting Guide](docs/user_guide.md#11-troubleshooting) for common issues and solutions.
 
-## Contributing
-
-Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ## License
 
