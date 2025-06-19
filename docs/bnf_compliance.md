@@ -232,17 +232,6 @@ Example `bnf_metadata.json`:
 }
 ```
 
-### Using Kakadu for Strict Compliance
-
-For maximum BnF compliance, use Kakadu:
-
-```bash
-python -m cli.workflow input_dir/ output_dir/ \
-  --bnf-compliant \
-  --use-kakadu \
-  --kakadu-path /path/to/kdu_compress
-```
-
 ### API Usage
 
 ```python

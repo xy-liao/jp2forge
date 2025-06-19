@@ -1,14 +1,22 @@
 # JP2Forge
 
-> **Developer-oriented repository** - For a user-friendly version, visit: https://gitlab.huma-num.fr/sliao/jp2forge
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge)
 
-JP2Forge converts images to JPEG2000 format with support for standard and BnF (Bibliothèque nationale de France) compliant workflows.
+JP2Forge is a comprehensive Python tool for converting images to JPEG2000 format with support for standard and BnF (Bibliothèque nationale de France) compliant workflows.
+
+**Key capabilities:**
+- High-quality JPEG2000 conversion with multiple compression modes
+- BnF-compliant processing for cultural heritage digitization
+- Parallel processing for efficient batch operations
+- Quality analysis and validation with PSNR/SSIM metrics
+- Multi-page TIFF support with automatic page extraction
+- Comprehensive metadata preservation and XMP integration
 
 ## Quick Start
 
 ### Installation
+
+#### Option 1: From Source (Recommended for Development)
 
 ```bash
 # Clone repository
@@ -19,9 +27,8 @@ cd jp2forge
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies
+# Install dependencies (includes jpylyzer)
 pip install -r requirements.txt
-pip install jpylyzer
 
 # Install ExifTool (required for metadata operations)
 # macOS:
@@ -30,6 +37,13 @@ brew install exiftool
 # sudo apt-get install libimage-exiftool-perl
 # Windows:
 # Download from https://exiftool.org/ and follow installation instructions
+```
+
+#### Option 2: Via pip (When Available on PyPI)
+
+```bash
+pip install jp2forge
+# Install ExifTool separately (see above)
 ```
 
 ### Basic Usage
@@ -124,13 +138,21 @@ For a complete list of all options, see the [CLI Reference](docs/cli_reference.m
 
 ## Current Status and Roadmap
 
-JP2Forge provides functional BnF-compliant JPEG2000 conversion capabilities. The project continues to evolve with planned enhancements including:
+JP2Forge is production-ready with comprehensive JPEG2000 conversion capabilities. Recent improvements include:
 
-- Automatic BnF validation integration
-- UUID collision detection
-- Comprehensive unit test infrastructure
-- Improved architecture with factory patterns
-- Enhanced documentation
+**✅ Completed (v0.9.6+):**
+- Refactored codebase with eliminated code duplication
+- Shared utility modules for better maintainability
+- Enhanced error handling and progress tracking
+- Comprehensive testing infrastructure
+- Publication-ready codebase structure
+
+**🔄 Ongoing Development:**
+- PyPI package publication
+- Comprehensive unit test coverage expansion
+- Performance optimization for large datasets
+- Docker containerization support
+- Extended BnF validation features
 
 ## Troubleshooting
 
@@ -145,8 +167,19 @@ JP2Forge is released under the MIT License.
 
 - **[JP2Forge Web](https://github.com/xy-liao/jp2forge_web)**: A web interface for the JP2Forge JPEG2000 conversion library.
 
+## Use Cases
+
+JP2Forge is designed for:
+- **Cultural Heritage Institutions**: Museums, libraries, and archives digitizing collections
+- **Academic Research**: Digital humanities projects requiring high-quality image preservation
+- **BnF Compliance**: Organizations following Bibliothèque nationale de France standards
+- **Batch Processing**: Efficient conversion of large image datasets
+- **Quality Control**: Projects requiring rigorous quality analysis and validation
+
 ## Acknowledgments
 
 This project follows technical requirements described in BnF reference documents:
 - BnF Referential (2015): [PDF](https://www.bnf.fr/sites/default/files/2018-11/ref_num_fichier_image_v2.pdf)
 - BnF Documentation (2021): [PDF](https://www.bnf.fr/sites/default/files/2021-04/politiqueFormatsDePreservationBNF_20210408.pdf)
+
+JP2Forge serves the digital humanities community and cultural heritage institutions worldwide.

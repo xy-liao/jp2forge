@@ -26,8 +26,9 @@ jp2forge/
 │   └── types.py           # Type definitions
 ├── workflow/              # Processing workflows
 │   ├── base.py           # Base workflow class
-│   ├── standard.py       # Sequential processing
-│   └── parallel.py       # Parallel processing
+│   ├── standard.py   # Sequential processing
+│   ├── parallel.py       # Parallel processing
+│   └── utils.py          # Shared workflow utilities
 ├── utils/                 # Utility functions
 └── examples/              # Usage examples
 ```
@@ -38,6 +39,7 @@ jp2forge/
 - **Extensibility**: Easy to add new compression modes or document types
 - **Configuration**: Flexible configuration system
 - **Error Handling**: Comprehensive error handling and logging
+- **Code Reusability**: Shared utilities to eliminate duplication
 
 ## 2. Core Components
 

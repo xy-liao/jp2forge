@@ -851,8 +851,9 @@ class StandardWorkflow(BaseWorkflow):
             # If there are errors, we still continue processing other files
 
             # Log batch progress every 5% or 10 files, whichever comes first
+            current_progress = (len(results['processed_files']) / self.total_files) * 100
             should_log_progress = (i % 10 == 9) or (i > 0 and int(
-                progress / 5) > int(((i - 1) / self.total_files * 100) / 5))
+                current_progress / 5) > int(((i - 1) / self.total_files * 100) / 5))
             if should_log_progress and self.enable_profiling:
                 current_time = time.time()
                 elapsed_time = current_time - self.start_time
@@ -863,7 +864,7 @@ class StandardWorkflow(BaseWorkflow):
                 mark_event("batch_progress", {
                     "processed": i + 1,
                     "total": self.total_files,
-                    "percent_complete": progress,
+                    "percent_complete": current_progress,
                     "files_per_second": files_per_second,
                     "estimated_remaining_seconds": estimated_remaining
                 })

@@ -1,29 +1,13 @@
 # Benchmark Results Directory
 
-This directory stores benchmark result data and visualizations.
+This directory contains detailed benchmark test results and data files.
 
-## Contents
+Stored results include:
+- JSON data files with detailed metrics
+- Performance graphs and charts
+- Comparison analysis data
+- Historical benchmark results
 
-This directory will contain:
-- Raw benchmark performance data
-- Comparison metrics between different compression settings
-- Resource utilization measurements (CPU, memory, time)
+## Usage
 
-## Example Usage
-
-Benchmark results are generated when running benchmark tests:
-
-```bash
-python -m utils.benchmark --test-suite comprehensive --output-format json
-```
-
-## File Organization
-
-Files in this directory:
-- Raw results in JSON and CSV formats
-- Performance visualization charts
-- Data may be organized in subdirectories by test date or configuration
-
-## Usage Notes
-
-Result files are not included in the repository but will be generated when you run benchmarks.
+Results are automatically stored here during benchmark testing and can be used for performance trend analysis and optimization.

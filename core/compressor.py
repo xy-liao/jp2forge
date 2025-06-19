@@ -22,9 +22,8 @@ logger = logging.getLogger(__name__)
 class JPEG2000Compressor:
     """Handles JPEG2000 compression operations.
 
-    This is an original implementation that uses either Pillow's JPEG2000 support
-    or optionally Kakadu (if available) for BnF compliance. It is not based on or
-    derived from other implementations like OpenJPEG.
+    This is an original implementation that uses Pillow's JPEG2000 support
+    for BnF compliance. It is not based on or derived from other implementations.
     """
 
     def __init__(
@@ -32,9 +31,7 @@ class JPEG2000Compressor:
         num_resolutions: int = 10,
         progression_order: str = "RPCL",
         chunk_size: int = 1000000,  # Default 1M pixels per chunk
-        memory_limit_mb: int = 4096,  # Default 4GB memory limit
-        use_kakadu: bool = False,  # Whether to use Kakadu for BnF compliance
-        kakadu_path: str = "kdu_compress"  # Path to Kakadu executable
+        memory_limit_mb: int = 4096  # Default 4GB memory limit
     ):
         """Initialize the compressor.
 
@@ -43,15 +40,11 @@ class JPEG2000Compressor:
             progression_order: Progression order for JPEG2000
             chunk_size: Number of pixels to process at once for large images
             memory_limit_mb: Memory limit in MB for adaptive processing
-            use_kakadu: Whether to use Kakadu for BnF compliance
-            kakadu_path: Path to Kakadu executable
         """
         self.num_resolutions = num_resolutions
         self.progression_order = progression_order
         self.chunk_size = chunk_size
         self.memory_limit_mb = memory_limit_mb
-        self.use_kakadu = use_kakadu
-        self.kakadu_path = kakadu_path
 
     def convert_to_jp2(
         self,
@@ -91,8 +84,8 @@ class JPEG2000Compressor:
             # Determine if we need to use lossless compression
             use_lossless = (compression_mode == CompressionMode.LOSSLESS)
 
-            # If BnF compliant or using Kakadu, use special processing path
-            if bnf_compliant or (compression_mode == CompressionMode.BNF_COMPLIANT) or self.use_kakadu:
+            # If BnF compliant, use special processing path
+            if bnf_compliant or (compression_mode == CompressionMode.BNF_COMPLIANT):
                 success = self._convert_bnf_compliant(
                     input_file,
                     output_file,
@@ -374,16 +367,6 @@ class JPEG2000Compressor:
             # Get BnF compression ratio for document type
             target_ratio = BnFCompressionRatio.get_ratio_for_type(doc_type)
 
-            # If using Kakadu, use it for BnF compliant conversion
-            if self.use_kakadu:
-                return self._convert_with_kakadu(
-                    input_file,
-                    output_file,
-                    target_ratio,
-                    lossless,
-                    include_bnf_markers
-                )
-
             # Check if we need to process in chunks
             from utils.image import should_process_in_chunks
             should_chunk, chunk_size = should_process_in_chunks(input_file, self.memory_limit_mb)
@@ -469,135 +452,6 @@ class JPEG2000Compressor:
             logger.error(f"Error in BnF compliant conversion: {str(e)}")
             return False
 
-    def _convert_with_kakadu(
-        self,
-        input_file: str,
-        output_file: str,
-        target_ratio: float,
-        lossless: bool,
-        include_bnf_markers: bool = True
-    ) -> bool:
-        """
-        Convert image to JPEG2000 using Kakadu for BnF compliance.
-
-        Args:
-            input_file: Path to input image
-            output_file: Path for output JP2 file
-            target_ratio: Target compression ratio
-            lossless: Whether to use lossless compression
-            include_bnf_markers: Whether to include BnF robustness markers
-
-        Returns:
-            bool: True if conversion successful
-
-        Raises:
-            FileNotFoundError: If Kakadu is not found
-            RuntimeError: If Kakadu fails
-        """
-        # Verify Kakadu is available
-        if not os.path.exists(self.kakadu_path) and not self._is_command_available(self.kakadu_path):
-            raise FileNotFoundError(f"Kakadu executable not found: {self.kakadu_path}")
-
-        try:
-            # Build Kakadu command
-            cmd = [self.kakadu_path]
-
-            # Input and output
-            cmd.extend(["-i", input_file, "-o", output_file])
-
-            # Basic parameters
-            num_threads = max(1, os.cpu_count() - 1)
-            cmd.extend([f"-num_threads={num_threads}", "-quiet"])
-
-            # Resolution levels
-            cmd.append(f"Clevels={self.num_resolutions}")
-
-            # Compression type
-            if lossless:
-                cmd.append("Creversible=yes")
-            else:
-                cmd.append("Creversible=no")
-
-                # Calculate rate based on target ratio
-                # For 24-bit color images, rate = 24/target_ratio
-                with Image.open(input_file) as img:
-                    if img.mode in ["RGB", "RGBA"]:
-                        bit_depth = 24
-                    else:  # Grayscale
-                        bit_depth = 8
-
-                rate = bit_depth / target_ratio
-                cmd.append(f"-rate {rate}")
-
-            # Progression order - RPCL is BnF standard
-            cmd.append("Corder=RPCL")
-
-            # Add BnF robustness markers
-            if include_bnf_markers:
-                cmd.extend([
-                    "Stiles={1024,1024}",
-                    "Cblk={64,64}",
-                    "Cuse_sop=yes",
-                    "Cuse_eph=yes",
-                    "ORGgen_plt=yes",
-                    "ORGtparts=R",
-                    "Cprecincts={256,256},{256,256},{128,128}",
-                ])
-
-            cmd.append("-precise")
-
-            # Execute command
-            logger.info(f"Running Kakadu: {' '.join(cmd)}")
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                check=False
-            )
-
-            if result.returncode != 0:
-                error_msg = result.stderr.strip() or f"Exit code: {result.returncode}"
-                logger.error(f"Kakadu error: {error_msg}")
-                raise RuntimeError(f"Kakadu failed: {error_msg}")
-
-            # Check if output file exists and has content
-            if not os.path.exists(output_file):
-                raise RuntimeError("Kakadu did not produce an output file")
-
-            if os.path.getsize(output_file) == 0:
-                os.remove(output_file)  # Clean up empty file
-                raise RuntimeError("Kakadu produced an empty output file")
-
-            # Check compression ratio if not lossless
-            if not lossless:
-                ratio_ok = self._check_compression_ratio(
-                    input_file,
-                    output_file,
-                    target_ratio,
-                    0.05  # 5% tolerance per BnF spec
-                )
-
-                if not ratio_ok:
-                    logger.warning(f"Compression ratio outside acceptable range for {input_file}")
-                    return False
-
-            return True
-
-        except Exception as e:
-            logger.error(f"Error with Kakadu conversion: {str(e)}")
-
-            # Clean up any partial output file
-            if os.path.exists(output_file):
-                try:
-                    os.remove(output_file)
-                except Exception:
-                    pass
-
-            # Re-raise critical errors
-            if isinstance(e, (FileNotFoundError, RuntimeError)):
-                raise
-
-            return False
 
     def _is_command_available(self, command: str) -> bool:
         """Check if a command is available in the system path.

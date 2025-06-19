@@ -107,9 +107,7 @@ def __init__(
     num_resolutions: int = 10,
     progression_order: str = "RPCL",
     chunk_size: int = 1000000,
-    memory_limit_mb: int = 4096,
-    use_kakadu: bool = False,
-    kakadu_path: str = "kdu_compress"
+    memory_limit_mb: int = 4096
 ):
 ```
 
@@ -118,8 +116,6 @@ def __init__(
 - `progression_order`: JPEG2000 progression order (RPCL, LRCP, etc.)
 - `chunk_size`: Pixels to process at once for large images
 - `memory_limit_mb`: Memory limit for adaptive processing
-- `use_kakadu`: Whether to use Kakadu for BnF compliance
-- `kakadu_path`: Path to Kakadu executable
 
 ### Methods
 

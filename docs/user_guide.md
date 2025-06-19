@@ -24,7 +24,6 @@ This guide provides comprehensive instructions for using JP2Forge to convert ima
 - 4GB RAM minimum (8GB+ recommended for large images)
 - External dependencies:
   - ExifTool (required for metadata handling)
-  - Kakadu (optional, for BnF-compliant compression)
 
 ### Installing JP2Forge
 
@@ -67,12 +66,6 @@ pip install jpylyzer structlog
 - **Ubuntu/Debian**: `sudo apt install libimage-exiftool-perl`
 - **Windows**: Download from [ExifTool's website](https://exiftool.org)
 
-#### Kakadu (Optional)
-
-For BnF-compliant processing:
-- Download from [Kakadu Software](http://kakadusoftware.com/)
-- Install according to provided instructions
-- Set path using `--kakadu-path` option
 
 ## 2. Basic Usage
 
@@ -192,14 +185,6 @@ python -m cli.workflow input_dir/ output_dir/ --bnf-compliant
 | Color | 1:6 | `--document-type color` |
 | Grayscale | 1:16 | `--document-type grayscale` |
 
-### Using Kakadu for BnF Compliance
-
-```bash
-python -m cli.workflow input_dir/ output_dir/ \
-  --bnf-compliant \
-  --use-kakadu \
-  --kakadu-path /path/to/kdu_compress
-```
 
 ### Compression Ratio Tolerance
 

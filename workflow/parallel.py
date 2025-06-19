@@ -74,6 +74,9 @@ def standalone_process_file_worker(
         dict: Processing result as a dictionary
     """
     try:
+        # Import here to avoid circular imports in multiprocessing
+        from workflow.standard import StandardWorkflow
+        
         # Create a minimal config for the workflow
         config = WorkflowConfig(
             output_dir=output_dir,

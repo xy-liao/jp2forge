@@ -6,11 +6,10 @@ with external dependencies required by JP2Forge.
 """
 
 import os
-import sys
 import logging
 import subprocess
 import shutil
-from typing import Dict, Any, Optional, List, Set, Tuple
+from typing import Dict, Optional, List
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +19,7 @@ class ToolManager:
     Manager for external tool dependencies.
 
     This class handles detection and management of external tools
-    required by JP2Forge, such as Kakadu and ExifTool.
+    required by JP2Forge, such as ExifTool.
     """
 
     def __init__(
@@ -63,7 +62,6 @@ class ToolManager:
 
         # Detect common tools
         self._detect_exiftool()
-        self._detect_kakadu()
         self._detect_jpylyzer()
 
         logger.info(
@@ -143,97 +141,6 @@ class ToolManager:
 
         except Exception as e:
             logger.warning(f"Error verifying ExifTool at {path}: {e}")
-            return False
-
-    def _detect_kakadu(self) -> None:
-        """
-        Detect Kakadu availability.
-        """
-        # Check custom path first
-        kakadu_path = self.tool_paths.get('kakadu')
-
-        if kakadu_path and os.path.isdir(kakadu_path):
-            # Look for kdu_compress in the directory
-            kdu_compress = os.path.join(kakadu_path, 'kdu_compress')
-            if sys.platform == 'win32':
-                kdu_compress += '.exe'
-
-            if os.path.exists(kdu_compress):
-                if self._verify_kakadu(kdu_compress):
-                    self._available_tools['kakadu'] = kdu_compress
-                    return
-
-        # If prefer system tools, check in PATH first
-        if self.prefer_system_tools:
-            kdu_compress = shutil.which('kdu_compress')
-            if kdu_compress:
-                if self._verify_kakadu(kdu_compress):
-                    self._available_tools['kakadu'] = kdu_compress
-                    return
-
-        # Check common installation locations
-        common_paths = [
-            '/usr/bin/kdu_compress',
-            '/usr/local/bin/kdu_compress',
-            '/opt/homebrew/bin/kdu_compress',
-            '/opt/kakadu/kdu_compress',
-            'C:\\Program Files\\Kakadu\\kdu_compress.exe',
-            'C:\\Kakadu\\kdu_compress.exe'
-        ]
-
-        for path in common_paths:
-            if os.path.exists(path):
-                if self._verify_kakadu(path):
-                    self._available_tools['kakadu'] = path
-                    return
-
-        logger.info("Kakadu not found, will use Pillow for JPEG2000 operations")
-
-    def _verify_kakadu(self, path: str) -> bool:
-        """
-        Verify that the Kakadu installation at the given path works.
-
-        Args:
-            path: Path to kdu_compress
-
-        Returns:
-            bool: True if Kakadu works
-        """
-        try:
-            result = subprocess.run(
-                [path, '-v'],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                timeout=self.timeout,
-                check=False
-            )
-
-            # Kakadu outputs version to stderr
-            output = result.stderr.strip() or result.stdout.strip()
-
-            if 'Kakadu' in output:
-                # Extract version if possible
-                for line in output.split('\n'):
-                    if 'Version' in line:
-                        version = line.strip()
-                        self._tool_versions['kakadu'] = version
-                        logger.info(f"Found Kakadu ({version}) at {path}")
-                        return True
-
-                # If version not found, just log generic info
-                logger.info(f"Found Kakadu at {path}")
-                self._tool_versions['kakadu'] = 'Unknown version'
-                return True
-            else:
-                logger.warning(
-                    f"Kakadu at {path} failed verification: "
-                    f"Output does not contain 'Kakadu'"
-                )
-                return False
-
-        except Exception as e:
-            logger.warning(f"Error verifying Kakadu at {path}: {e}")
             return False
 
     def _detect_jpylyzer(self) -> None:

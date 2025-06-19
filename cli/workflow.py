@@ -123,9 +123,10 @@ def generate_summary_report_with_jpylyzer(results, config, report_dir):
         input_file = file_result.get('input_file', 'Unknown')
         status = file_result.get('status', 'UNKNOWN')
         output_file = file_result.get('output_file', '')
-        orig_size = file_result.get('file_sizes', {}).get('original_size_human', 'N/A')
-        conv_size = file_result.get('file_sizes', {}).get('converted_size_human', 'N/A')
-        ratio = file_result.get('file_sizes', {}).get('compression_ratio', 'N/A')
+        file_sizes = file_result.get('file_sizes') or {}
+        orig_size = file_sizes.get('original_size_human', 'N/A')
+        conv_size = file_sizes.get('converted_size_human', 'N/A')
+        ratio = file_sizes.get('compression_ratio', 'N/A')
         jp2_name = Path(output_file).name if output_file else ''
         is_valid = jpylyzer_data.get(jp2_name, {}).get('isValid', None)
 
@@ -253,16 +254,6 @@ def main():
         action="store_true",
         default=True,
         help="Include BnF robustness markers (SOP, EPH, PLT)"
-    )
-    parser.add_argument(
-        "--use-kakadu",
-        action="store_true",
-        help="Use Kakadu (if available) for BnF compliant conversion"
-    )
-    parser.add_argument(
-        "--kakadu-path",
-        default="kdu_compress",
-        help="Path to Kakadu executable"
     )
     parser.add_argument(
         "--no-lossless-fallback",
@@ -486,16 +477,7 @@ def main():
     logger.info("-" * 80)
 
     # Create the workflow
-    # Initialize the compressor with Kakadu if requested
-    use_kakadu = args.bnf_compliant and args.use_kakadu
-
-    # Create the workflow
     workflow = create_workflow(config)
-
-    # Set Kakadu parameters if used
-    if use_kakadu and hasattr(workflow, 'compressor'):
-        workflow.compressor.use_kakadu = True
-        workflow.compressor.kakadu_path = args.kakadu_path
 
     # Load metadata if provided
     metadata = None

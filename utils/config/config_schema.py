@@ -77,8 +77,6 @@ class ConfigSchema:
         # BnF settings
         'bnf': {
             'compliant': False,
-            'use_kakadu': False,
-            'kakadu_path': None,
             'uuid': 'BE7ACFCB97A942E89C71999491E3AFAC',
         },
 
@@ -145,8 +143,6 @@ class ConfigSchema:
         'jpeg2000.compression_ratio_tolerance': {'type': float, 'min': 0.0, 'max': 1.0},
 
         'bnf.compliant': {'type': bool},
-        'bnf.use_kakadu': {'type': bool},
-        'bnf.kakadu_path': {'type': (str, type(None))},
         'bnf.uuid': {'type': str},
 
         'metadata.creator_tool': {'type': str},

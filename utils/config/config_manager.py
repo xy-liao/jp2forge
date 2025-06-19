@@ -321,8 +321,6 @@ class ConfigManager:
                 'document_type': 'document_type',  # Special handling
                 'compression_mode': 'jpeg2000.compression_mode',
                 'bnf_compliant': 'bnf.compliant',
-                'use_kakadu': 'bnf.use_kakadu',
-                'kakadu_path': 'bnf.kakadu_path',
                 'num_resolutions': 'jpeg2000.num_resolutions',
                 'progression_order': 'jpeg2000.progression_order',
                 'lossless_fallback': 'jpeg2000.lossless_fallback',

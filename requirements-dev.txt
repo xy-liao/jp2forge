@@ -14,6 +14,5 @@ build>=1.2.0         # Package building
 pytest>=7.0.0        # Testing framework
 ipython>=8.0.0       # Enhanced REPL experience for debugging
 
-# Data analysis and visualization (for benchmarking)
-matplotlib>=3.9.0    # Plotting library
-pandas>=2.2.0        # Data analysis library
+# Note: matplotlib and pandas moved to main requirements.txt 
+# since they're used by core benchmark utilities

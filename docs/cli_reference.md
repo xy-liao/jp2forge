@@ -48,8 +48,6 @@ Where:
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--include-bnf-markers` | Include BnF robustness markers (SOP, EPH, PLT) | `True` |
-| `--use-kakadu` | Use Kakadu (if available) for BnF compliant conversion | `False` |
-| `--kakadu-path` | Path to Kakadu executable | `kdu_compress` |
 
 ### Parallel Processing Options
 
@@ -132,6 +130,6 @@ python -m cli.workflow large_image.tif output_dir/ --memory-limit 2048 --chunk-s
 # Production-grade parallel processing
 python -m cli.workflow input_dir/ output_dir/ --parallel --adaptive-workers --min-workers 2 --memory-threshold 0.7 --cpu-threshold 0.8
 
-# BnF compliant with Kakadu and metadata
-python -m cli.workflow input_dir/ output_dir/ --bnf-compliant --use-kakadu --kakadu-path /path/to/kdu_compress --metadata metadata.json
+# BnF compliant with metadata
+python -m cli.workflow input_dir/ output_dir/ --bnf-compliant --metadata metadata.json
 ```

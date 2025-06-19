@@ -6,14 +6,17 @@ lxml>=4.9.0        # XML processing for metadata
 pyyaml>=6.0        # YAML configuration support
 jpylyzer>=2.2.0    # JPEG2000 validation tool
 
+# Optional dependencies for benchmarking
+matplotlib>=3.9.0  # Plotting library (for benchmark utilities)
+pandas>=2.2.0      # Data analysis library (for benchmark utilities)
+
 # Note: The ExifTool CLI executable is required for metadata handling
 # Install it separately following your OS's installation method:
 # - macOS: brew install exiftool
 # - Linux: apt-get install libimage-exiftool-perl
 # - Windows: Download from https://exiftool.org/
 
-# Recommended system dependencies:
+# Required system dependencies:
 # ExifTool: essential for metadata operations
-# Kakadu: high-performance JPEG2000 library (optional)
 
 # For development dependencies, see requirements-dev.txt

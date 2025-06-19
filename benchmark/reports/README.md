@@ -1,29 +1,13 @@
 # Benchmark Reports Directory
 
-This directory stores benchmark summary reports.
+This directory contains benchmark analysis reports and performance summaries.
 
-## Contents
+Generated files include:
+- Performance comparison reports
+- Benchmark summary statistics
+- Quality analysis results
+- Processing time measurements
 
-This directory will contain:
-- Summary reports of benchmark performance
-- Comparison analyses across different parameter sets
-- Execution time and resource usage statistics
+## Usage
 
-## Example Usage
-
-Benchmark reports are generated when running benchmark tests:
-
-```bash
-python -m utils.benchmark --test-suite standard --generate-reports
-```
-
-## File Organization
-
-Files in this directory:
-- Summary reports in HTML and Markdown formats
-- Performance analysis charts in SVG/PNG format
-- Tabular data in CSV format
-
-## Usage Notes
-
-Report files are not included in the repository but will be generated when you run benchmarks.
+Reports are generated during benchmark runs and provide insights into JP2Forge performance across different configurations.

@@ -107,13 +107,14 @@ Each example also demonstrates programmatic usage of JP2Forge components:
 
 ```python
 # Example: Basic conversion
-from core.types import WorkflowConfig, DocumentType
+from core.types import WorkflowConfig, DocumentType, CompressionMode
 from workflow.standard import StandardWorkflow
 
 config = WorkflowConfig(
     output_dir="output/",
     report_dir="reports/",
-    document_type=DocumentType.PHOTOGRAPH
+    document_type=DocumentType.PHOTOGRAPH,
+    compression_mode=CompressionMode.SUPERVISED
 )
 
 workflow = StandardWorkflow(config)
