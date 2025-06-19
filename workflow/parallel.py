@@ -28,7 +28,7 @@ from core.types import (
 from utils.image import validate_image, get_output_path, find_image_files
 from utils.resource_monitor import ResourceMonitor
 from workflow.base import BaseWorkflow
-from workflow.standard import StandardWorkflow
+from workflow.utils import format_file_size, _calculate_file_sizes, _resolve_parameters
 from core.metadata.bnf_handler import BnFMetadataHandler
 
 logger = logging.getLogger(__name__)
@@ -105,28 +105,7 @@ def standalone_process_file_worker(
         )
 
         # Calculate file size metrics
-        file_sizes = {}
-        if hasattr(result, 'file_sizes') and result.file_sizes:
-            file_sizes = result.file_sizes
-        elif result.output_file and os.path.exists(result.output_file) and os.path.exists(input_file):
-            # Calculate file sizes if not available but files exist
-            original_size = os.path.getsize(input_file)
-            converted_size = os.path.getsize(result.output_file)
-
-            # Format sizes into human-readable format
-            original_size_human = format_file_size(original_size)
-            converted_size_human = format_file_size(converted_size)
-
-            # Calculate compression ratio
-            compression_ratio = f"{original_size / converted_size:.2f}:1" if converted_size > 0 else "N/A"
-
-            file_sizes = {
-                "original_size": original_size,
-                "original_size_human": original_size_human,
-                "converted_size": converted_size,
-                "converted_size_human": converted_size_human,
-                "compression_ratio": compression_ratio
-            }
+        file_sizes = _calculate_file_sizes(result, input_file)
 
         # Convert ProcessingResult to dictionary for serialization
         return {
@@ -151,23 +130,6 @@ def standalone_process_file_worker(
         }
 
 
-def format_file_size(size_in_bytes):
-    """Format file size in a human-readable format.
-
-    Args:
-        size_in_bytes: Size in bytes
-
-    Returns:
-        String with human-readable file size
-    """
-    if size_in_bytes < 1024:
-        return f"{size_in_bytes} B"
-    elif size_in_bytes < 1024 * 1024:
-        return f"{size_in_bytes / 1024:.2f} KB"
-    elif size_in_bytes < 1024 * 1024 * 1024:
-        return f"{size_in_bytes / (1024 * 1024):.2f} MB"
-    else:
-        return f"{size_in_bytes / (1024 * 1024 * 1024):.2f} GB"
 
 
 class ParallelWorkflow(BaseWorkflow):
@@ -210,16 +172,102 @@ class ParallelWorkflow(BaseWorkflow):
         else:
             logger.info(f"Using fixed worker pool with {self.max_workers} worker processes")
 
-    def _format_file_size(self, size_in_bytes):
-        """Format file size in a human-readable format.
-
+    def _initialize_results(self, include_worker_stats=False):
+        """Initialize processing results dictionary.
+        
         Args:
-            size_in_bytes: Size in bytes
-
+            include_worker_stats: Whether to include worker_stats field
+            
         Returns:
-            String with human-readable file size
+            Dictionary with initialized result structure
         """
-        return format_file_size(size_in_bytes)
+        results = {
+            'status': WorkflowStatus.SUCCESS,
+            'processed_files': [],
+            'success_count': 0,
+            'warning_count': 0,
+            'error_count': 0,
+            'corrupted_count': 0,
+            'processing_time': 0
+        }
+        if include_worker_stats:
+            results['worker_stats'] = []
+        return results
+
+    def _create_worker_function(self, doc_type, lossless_fallback, bnf_compliant, 
+                               compression_ratio_tolerance, include_bnf_markers, metadata):
+        """Create partial worker function with common parameters.
+        
+        Args:
+            doc_type: Document type for compression
+            lossless_fallback: Whether to fall back to lossless compression
+            bnf_compliant: Whether to use BnF compliant settings
+            compression_ratio_tolerance: Tolerance for compression ratio
+            include_bnf_markers: Whether to include BnF robustness markers
+            metadata: Additional metadata to include in output files
+            
+        Returns:
+            Partial function configured for worker processing
+        """
+        return partial(
+            standalone_process_file_worker,
+            output_dir=self.config.output_dir,
+            report_dir=self.config.report_dir,
+            doc_type=doc_type,
+            quality_threshold=self.config.quality_threshold,
+            num_resolutions=self.config.num_resolutions,
+            progression_order=self.config.progression_order,
+            compression_mode=self.config.compression_mode,
+            lossless_fallback=lossless_fallback,
+            bnf_compliant=bnf_compliant,
+            compression_ratio_tolerance=compression_ratio_tolerance,
+            include_bnf_markers=include_bnf_markers,
+            metadata=metadata
+        )
+
+    def _update_result_status(self, results, file_result):
+        """Update result counters based on file processing status.
+        
+        Args:
+            results: Results dictionary to update
+            file_result: File processing result
+        """
+        if file_result['status'] == WorkflowStatus.SUCCESS.name:
+            results['success_count'] += 1
+        elif file_result['status'] == WorkflowStatus.WARNING.name:
+            results['warning_count'] += 1
+            if results['status'] == WorkflowStatus.SUCCESS:
+                results['status'] = WorkflowStatus.WARNING
+        elif file_result['status'] == WorkflowStatus.FAILURE.name:
+            results['error_count'] += 1
+            results['status'] = WorkflowStatus.FAILURE
+        elif file_result['status'] == WorkflowStatus.SKIPPED.name:
+            results['corrupted_count'] += 1
+
+    def _log_progress(self, processed_count, total_files, start_time, current_workers=None):
+        """Log processing progress with consistent formatting.
+        
+        Args:
+            processed_count: Number of files processed so far
+            total_files: Total number of files to process
+            start_time: Processing start time
+            current_workers: Current worker count (for adaptive mode)
+        """
+        if processed_count % 10 == 0 or processed_count == total_files:
+            elapsed = time.time() - start_time
+            files_per_second = processed_count / elapsed if elapsed > 0 else 0
+            
+            if current_workers is not None:
+                logger.info(
+                    f"Processed {processed_count} files in {elapsed:.2f} seconds "
+                    f"({files_per_second:.2f} files/second), current workers: {current_workers}"
+                )
+            else:
+                logger.info(
+                    f"Processed {processed_count} files in {elapsed:.2f} seconds "
+                    f"({files_per_second:.2f} files/second)"
+                )
+
 
     def _process_file_implementation(
         self,
@@ -246,6 +294,7 @@ class ParallelWorkflow(BaseWorkflow):
             ProcessingResult: Result of processing
         """
         # For ParallelWorkflow, delegate to StandardWorkflow for actual processing
+        from workflow.standard import StandardWorkflow
         standard_workflow = StandardWorkflow(self.config)
         return standard_workflow._process_file_implementation(
             input_file=input_file,
@@ -418,27 +467,9 @@ class ParallelWorkflow(BaseWorkflow):
             }
 
         # Use configuration defaults if not specified
-        doc_type = doc_type or self.config.document_type
-        recursive = self.config.recursive if recursive is None else recursive
-        lossless_fallback = (
-            self.config.lossless_fallback
-            if lossless_fallback is None
-            else lossless_fallback
-        )
-        bnf_compliant = (
-            self.config.bnf_compliant
-            if bnf_compliant is None
-            else bnf_compliant
-        )
-        compression_ratio_tolerance = (
-            self.config.compression_ratio_tolerance
-            if compression_ratio_tolerance is None
-            else compression_ratio_tolerance
-        )
-        include_bnf_markers = (
-            self.config.include_bnf_markers
-            if include_bnf_markers is None
-            else include_bnf_markers
+        doc_type, recursive, lossless_fallback, bnf_compliant, compression_ratio_tolerance, include_bnf_markers = _resolve_parameters(
+            self.config, doc_type, recursive, lossless_fallback, bnf_compliant, 
+            compression_ratio_tolerance, include_bnf_markers
         )
 
         # Initialize default metadata if not provided
@@ -557,32 +588,11 @@ class ParallelWorkflow(BaseWorkflow):
         Returns:
             Dictionary with processing results
         """
-        # Initialize results
-        results = {
-            'status': WorkflowStatus.SUCCESS,
-            'processed_files': [],
-            'success_count': 0,
-            'warning_count': 0,
-            'error_count': 0,
-            'corrupted_count': 0,
-            'processing_time': 0
-        }
-
-        # Create a partial function with the fixed parameters
-        worker_func = partial(
-            standalone_process_file_worker,
-            output_dir=self.config.output_dir,
-            report_dir=self.config.report_dir,
-            doc_type=doc_type,
-            quality_threshold=self.config.quality_threshold,
-            num_resolutions=self.config.num_resolutions,
-            progression_order=self.config.progression_order,
-            compression_mode=self.config.compression_mode,
-            lossless_fallback=lossless_fallback,
-            bnf_compliant=bnf_compliant,
-            compression_ratio_tolerance=compression_ratio_tolerance,
-            include_bnf_markers=include_bnf_markers,
-            metadata=metadata
+        # Initialize results and create worker function
+        results = self._initialize_results()
+        worker_func = self._create_worker_function(
+            doc_type, lossless_fallback, bnf_compliant, 
+            compression_ratio_tolerance, include_bnf_markers, metadata
         )
 
         # Process in parallel using a process pool with fixed worker count
@@ -596,32 +606,16 @@ class ParallelWorkflow(BaseWorkflow):
             for i, future in enumerate(as_completed(future_to_file)):
                 file_result = future.result()
                 results['processed_files'].append(file_result)
-
-                if file_result['status'] == WorkflowStatus.SUCCESS.name:
-                    results['success_count'] += 1
-                elif file_result['status'] == WorkflowStatus.WARNING.name:
-                    results['warning_count'] += 1
-                    if results['status'] == WorkflowStatus.SUCCESS:
-                        results['status'] = WorkflowStatus.WARNING
-                elif file_result['status'] == WorkflowStatus.FAILURE.name:
-                    results['error_count'] += 1
-                    results['status'] = WorkflowStatus.FAILURE
-                elif file_result['status'] == WorkflowStatus.SKIPPED.name:
-                    results['corrupted_count'] += 1
+                
+                # Update status counters
+                self._update_result_status(results, file_result)
 
                 # Update progress
                 progress = ((i + 1) / self.total_files) * 100
                 logger.info(f"Progress: {progress:.1f}% ({i + 1}/{self.total_files})")
 
-                # Calculate and log partial results
-                if (i + 1) % 10 == 0 or (i + 1) == self.total_files:
-                    elapsed = time.time() - self.start_time
-                    files_per_second = (i + 1) / elapsed if elapsed > 0 else 0
-
-                    logger.info(
-                        f"Processed {i + 1} files in {elapsed:.2f} seconds "
-                        f"({files_per_second:.2f} files/second)"
-                    )
+                # Log progress periodically
+                self._log_progress(i + 1, self.total_files, self.start_time)
 
         # Calculate total processing time
         results['processing_time'] = time.time() - self.start_time
@@ -723,18 +717,8 @@ class ParallelWorkflow(BaseWorkflow):
                             file_result = future.result()
                             results['processed_files'].append(file_result)
 
-                            # Update counters based on status
-                            if file_result['status'] == WorkflowStatus.SUCCESS.name:
-                                results['success_count'] += 1
-                            elif file_result['status'] == WorkflowStatus.WARNING.name:
-                                results['warning_count'] += 1
-                                if results['status'] == WorkflowStatus.SUCCESS:
-                                    results['status'] = WorkflowStatus.WARNING
-                            elif file_result['status'] == WorkflowStatus.FAILURE.name:
-                                results['error_count'] += 1
-                                results['status'] = WorkflowStatus.FAILURE
-                            elif file_result['status'] == WorkflowStatus.SKIPPED.name:
-                                results['corrupted_count'] += 1
+                            # Update status counters
+                            self._update_result_status(results, file_result)
 
                             # Update progress tracking with time estimation
                             processed_count += 1
@@ -765,15 +749,7 @@ class ParallelWorkflow(BaseWorkflow):
                             gc.collect()
 
                             # Log status periodically
-                            if processed_count % 10 == 0 or processed_count == self.total_files:
-                                elapsed = time.time() - self.start_time
-                                files_per_second = processed_count / elapsed if elapsed > 0 else 0
-
-                                logger.info(
-                                    f"Processed {processed_count} files in {elapsed:.2f} seconds "
-                                    f"({files_per_second:.2f} files/second), "
-                                    f"current workers: {current_workers}"
-                                )
+                            self._log_progress(processed_count, self.total_files, self.start_time, current_workers)
                         except Exception as e:
                             logger.error(f"Error processing file: {str(e)}")
                             results['error_count'] += 1

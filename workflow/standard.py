@@ -28,6 +28,7 @@ from utils.image import (
 )
 from utils.profiling import profile, profile_block, mark_event, save_report
 from workflow.base import BaseWorkflow
+from workflow.utils import format_file_size, _calculate_file_sizes, _resolve_parameters
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,143 @@ class StandardWorkflow(BaseWorkflow):
 
         # Create temporary directory for extracted TIFF pages
         self.temp_dir = tempfile.mkdtemp(prefix="jp2forge_")
+
+    def _setup_bnf_metadata(self, metadata, input_file, page_num=None):
+        """Setup BnF metadata with default values.
+        
+        Args:
+            metadata: Original metadata dictionary
+            input_file: Path to input file
+            page_num: Page number for multipage documents (optional)
+            
+        Returns:
+            Dictionary with BnF metadata setup
+        """
+        metadata_dict = {}
+        if metadata:
+            metadata_dict.update(metadata)
+
+        # Generate document ID if not provided
+        base_name = os.path.splitext(os.path.basename(input_file))[0]
+        if page_num is not None:
+            default_id = f"NUM_{base_name}_p{page_num}"
+        else:
+            default_id = f"NUM_{base_name}"
+            
+        if 'dcterms:isPartOf' not in metadata_dict:
+            metadata_dict['dcterms:isPartOf'] = default_id
+
+        # Default BnF provenance if not specified
+        if 'dcterms:provenance' not in metadata_dict:
+            metadata_dict['dcterms:provenance'] = "Bibliothèque nationale de France"
+            
+        return metadata_dict
+
+    def _setup_bnf_handler(self):
+        """Setup BnF metadata handler if needed.
+        
+        Returns:
+            BnF metadata handler instance
+        """
+        if not isinstance(self.metadata_handler, BnFMetadataHandler):
+            base_handler = MetadataHandler()
+            return BnFMetadataHandler(base_handler=base_handler, debug=True)
+        else:
+            return self.metadata_handler
+
+    def _log_compression_stats(self, input_file, original_size, converted_size, compression_ratio, page_num=None):
+        """Log compression statistics for profiling.
+        
+        Args:
+            input_file: Path to input file
+            original_size: Original file size in bytes
+            converted_size: Converted file size in bytes
+            compression_ratio: Compression ratio
+            page_num: Page number for multipage documents (optional)
+        """
+        if self.enable_profiling:
+            if page_num is not None:
+                file_identifier = f"{os.path.basename(input_file)}_page_{page_num}"
+            else:
+                file_identifier = os.path.basename(input_file)
+                
+            mark_event("compression_stats", {
+                "input_file": file_identifier,
+                "original_size_mb": original_size / (1024 * 1024),
+                "converted_size_mb": converted_size / (1024 * 1024),
+                "compression_ratio": compression_ratio
+            })
+
+    def _handle_metadata_error(self, e, input_file, output_file, metadata_type="standard"):
+        """Handle metadata writing errors consistently.
+        
+        Args:
+            e: Exception that occurred
+            input_file: Path to input file
+            output_file: Path to output file
+            metadata_type: Type of metadata for logging
+            
+        Returns:
+            ProcessingResult with warning status
+        """
+        mark_event("metadata_error", {"error": str(e), "type": f"{metadata_type}_metadata"})
+        logger.error(f"Error writing {metadata_type} metadata: {str(e)}")
+        return ProcessingResult(
+            status=WorkflowStatus.WARNING,
+            input_file=input_file,
+            output_file=output_file,
+            error=f"Converted successfully but metadata failed: {str(e)}"
+        )
+
+    def _update_result_status(self, results, result):
+        """Update result counters based on processing status.
+        
+        Args:
+            results: Results dictionary to update
+            result: ProcessingResult object
+        """
+        if result.status == WorkflowStatus.SUCCESS:
+            results['success_count'] += 1
+        elif result.status == WorkflowStatus.WARNING:
+            results['warning_count'] += 1
+            if results['status'] == WorkflowStatus.SUCCESS:
+                results['status'] = WorkflowStatus.WARNING
+        elif result.status == WorkflowStatus.FAILURE:
+            results['error_count'] += 1
+            results['status'] = WorkflowStatus.FAILURE
+        elif result.status == WorkflowStatus.SKIPPED:
+            results['corrupted_count'] += 1
+
+    def _log_progress_with_estimation(self, processed_count, total_files, start_time):
+        """Log processing progress with time estimation.
+        
+        Args:
+            processed_count: Number of files processed so far
+            total_files: Total number of files to process
+            start_time: Processing start time
+        """
+        progress = (processed_count / total_files) * 100
+        current_time = time.time()
+        elapsed_time = current_time - start_time
+        
+        if processed_count > 0:
+            avg_time_per_file = elapsed_time / processed_count
+            remaining_files = total_files - processed_count
+            estimated_remaining_time = avg_time_per_file * remaining_files
+            
+            # Format time nicely
+            if estimated_remaining_time > 3600:
+                time_str = f"{estimated_remaining_time/3600:.1f}h"
+            elif estimated_remaining_time > 60:
+                time_str = f"{estimated_remaining_time/60:.1f}m"
+            else:
+                time_str = f"{estimated_remaining_time:.0f}s"
+                
+            logger.info(
+                f"Progress: {progress:.1f}% ({processed_count}/{total_files}) - Est. remaining: {time_str}")
+        else:
+            logger.info(
+                f"Progress: {progress:.1f}% ({processed_count}/{total_files})")
 
     def __del__(self):
         """Clean up temporary files when workflow is destroyed."""
@@ -198,29 +336,10 @@ class StandardWorkflow(BaseWorkflow):
 
                 # For BnF mode, use BnF compliant metadata
                 if bnf_compliant or compression_mode == CompressionMode.BNF_COMPLIANT:
-                    # Use the BnF metadata handler
-                    # Initialize with base handler to ensure proper setup
-                    if not isinstance(self.metadata_handler, BnFMetadataHandler):
-                        base_handler = MetadataHandler()
-                        bnf_handler = BnFMetadataHandler(base_handler=base_handler, debug=True)
-                    else:
-                        bnf_handler = self.metadata_handler
-
-                    # Generate document ID if not provided in metadata
-                    metadata_dict = {}
-                    if metadata:
-                        metadata_dict.update(metadata)
-
-                    # If not provided, generate default BnF isPartOf ID (NUM_format)
-                    if 'dcterms:isPartOf' not in metadata_dict:
-                        base_name = os.path.splitext(os.path.basename(input_file))[0]
-                        metadata_dict['dcterms:isPartOf'] = f"NUM_{base_name}"
-
-                    # Default BnF provenance if not specified
-                    if 'dcterms:provenance' not in metadata_dict:
-                        metadata_dict['dcterms:provenance'] = "Bibliothèque nationale de France"
-
                     try:
+                        bnf_handler = self._setup_bnf_handler()
+                        metadata_dict = self._setup_bnf_metadata(metadata, input_file)
+                        
                         self.metadata_handler.write_metadata(
                             output_file,
                             metadata_dict,
@@ -230,14 +349,7 @@ class StandardWorkflow(BaseWorkflow):
                             True  # bnf_compliant=True
                         )
                     except Exception as e:
-                        mark_event("metadata_error", {"error": str(e), "type": "bnf_metadata"})
-                        logger.error(f"Error writing BnF metadata: {str(e)}")
-                        return ProcessingResult(
-                            status=WorkflowStatus.WARNING,  # Continue with warning
-                            input_file=input_file,
-                            output_file=output_file,
-                            error=f"Converted successfully but metadata failed: {str(e)}"
-                        )
+                        return self._handle_metadata_error(e, input_file, output_file, "bnf")
                 else:
                     # Standard metadata
                     try:
@@ -249,42 +361,30 @@ class StandardWorkflow(BaseWorkflow):
                             self.config.progression_order
                         )
                     except Exception as e:
-                        mark_event("metadata_error", {"error": str(e), "type": "standard_metadata"})
-                        logger.error(f"Error writing metadata: {str(e)}")
-                        return ProcessingResult(
-                            status=WorkflowStatus.WARNING,  # Continue with warning
-                            input_file=input_file,
-                            output_file=output_file,
-                            error=f"Converted successfully but metadata failed: {str(e)}"
-                        )
+                        return self._handle_metadata_error(e, input_file, output_file, "standard")
 
             # Force garbage collection
             with profile_block("cleanup"):
                 gc.collect()
 
-            # Calculate file sizes
+            # Calculate file sizes and log compression stats
             file_sizes = None
             try:
-                original_size = os.path.getsize(input_file)
-                converted_size = os.path.getsize(output_file)
-                compression_ratio = original_size / converted_size if converted_size > 0 else 0
-
-                file_sizes = {
-                    "original_size": original_size,
-                    "original_size_human": self._format_file_size(original_size),
-                    "converted_size": converted_size,
-                    "converted_size_human": self._format_file_size(converted_size),
-                    "compression_ratio": f"{compression_ratio:.2f}:1"
-                }
-
+                # Create a dummy result object for _calculate_file_sizes
+                class DummyResult:
+                    def __init__(self, output_file):
+                        self.output_file = output_file
+                        self.file_sizes = None
+                
+                dummy_result = DummyResult(output_file)
+                file_sizes = _calculate_file_sizes(dummy_result, input_file)
+                
                 # Log compression stats for profiling
-                if self.enable_profiling:
-                    mark_event("compression_stats", {
-                        "input_file": os.path.basename(input_file),
-                        "original_size_mb": original_size / (1024 * 1024),
-                        "converted_size_mb": converted_size / (1024 * 1024),
-                        "compression_ratio": compression_ratio
-                    })
+                if file_sizes and self.enable_profiling:
+                    original_size = file_sizes.get("original_size", 0)
+                    converted_size = file_sizes.get("converted_size", 0)
+                    compression_ratio = original_size / converted_size if converted_size > 0 else 0
+                    self._log_compression_stats(input_file, original_size, converted_size, compression_ratio)
             except Exception as e:
                 logger.warning(f"Error calculating file sizes: {str(e)}")
 
@@ -411,7 +511,7 @@ class StandardWorkflow(BaseWorkflow):
                         "original_size": 0,  # Unknown
                         "original_size_human": "N/A",  # Unknown
                         "converted_size": page_converted_size,
-                        "converted_size_human": self._format_file_size(page_converted_size),
+                        "converted_size_human": format_file_size(page_converted_size),
                         "compression_ratio": "N/A"  # Unknown
                     })
 
@@ -485,25 +585,12 @@ class StandardWorkflow(BaseWorkflow):
                 try:
                     # Choose the right metadata handler based on BnF compliance
                     if bnf_compliant or compression_mode == CompressionMode.BNF_COMPLIANT:
-                        # Use the BnF metadata handler
-                        if not isinstance(self.metadata_handler, BnFMetadataHandler):
-                            base_handler = MetadataHandler()
-                            bnf_handler = BnFMetadataHandler(base_handler=base_handler, debug=True)
-                        else:
-                            bnf_handler = self.metadata_handler
-
-                        # Generate document ID if not provided in metadata
-                        if 'dcterms:isPartOf' not in page_metadata:
-                            base_name = os.path.splitext(os.path.basename(input_file))[0]
-                            page_metadata['dcterms:isPartOf'] = f"NUM_{base_name}_p{page_num+1}"
-
-                        # Default BnF provenance if not specified
-                        if 'dcterms:provenance' not in page_metadata:
-                            page_metadata['dcterms:provenance'] = "Bibliothèque nationale de France"
-
+                        bnf_handler = self._setup_bnf_handler()
+                        page_metadata_dict = self._setup_bnf_metadata(page_metadata, input_file, page_num + 1)
+                        
                         self.metadata_handler.write_metadata(
                             output_file,
-                            page_metadata,
+                            page_metadata_dict,
                             compression_mode.value,
                             self.config.num_resolutions,
                             self.config.progression_order,
@@ -558,20 +645,14 @@ class StandardWorkflow(BaseWorkflow):
                     combined_file_sizes["pages"].append({
                         "page": page_num + 1,
                         "original_size": page_original_size,
-                        "original_size_human": self._format_file_size(page_original_size),
+                        "original_size_human": format_file_size(page_original_size),
                         "converted_size": page_converted_size,
-                        "converted_size_human": self._format_file_size(page_converted_size),
+                        "converted_size_human": format_file_size(page_converted_size),
                         "compression_ratio": f"{page_ratio:.2f}:1"
                     })
 
                     # Log compression stats for profiling
-                    if self.enable_profiling:
-                        mark_event("compression_stats", {
-                            "input_file": f"{os.path.basename(input_file)}_page_{page_num+1}",
-                            "original_size_mb": page_original_size / (1024 * 1024),
-                            "converted_size_mb": page_converted_size / (1024 * 1024),
-                            "compression_ratio": page_ratio
-                        })
+                    self._log_compression_stats(input_file, page_original_size, page_converted_size, page_ratio, page_num + 1)
 
                 except Exception as e:
                     logger.warning(f"Error calculating file sizes for page {page_num+1}: {str(e)}")
@@ -613,9 +694,9 @@ class StandardWorkflow(BaseWorkflow):
         if combined_file_sizes["original_size"] > 0 and combined_file_sizes["converted_size"] > 0:
             total_ratio = combined_file_sizes["original_size"] / \
                 combined_file_sizes["converted_size"]
-            combined_file_sizes["original_size_human"] = self._format_file_size(
+            combined_file_sizes["original_size_human"] = format_file_size(
                 combined_file_sizes["original_size"])
-            combined_file_sizes["converted_size_human"] = self._format_file_size(
+            combined_file_sizes["converted_size_human"] = format_file_size(
                 combined_file_sizes["converted_size"])
             combined_file_sizes["compression_ratio"] = f"{total_ratio:.2f}:1"
 
@@ -686,27 +767,9 @@ class StandardWorkflow(BaseWorkflow):
             }
 
         # Use configuration defaults if not specified
-        doc_type = doc_type or self.config.document_type
-        recursive = self.config.recursive if recursive is None else recursive
-        lossless_fallback = (
-            self.config.lossless_fallback
-            if lossless_fallback is None
-            else lossless_fallback
-        )
-        bnf_compliant = (
-            self.config.bnf_compliant
-            if bnf_compliant is None
-            else bnf_compliant
-        )
-        compression_ratio_tolerance = (
-            self.config.compression_ratio_tolerance
-            if compression_ratio_tolerance is None
-            else compression_ratio_tolerance
-        )
-        include_bnf_markers = (
-            self.config.include_bnf_markers
-            if include_bnf_markers is None
-            else include_bnf_markers
+        doc_type, recursive, lossless_fallback, bnf_compliant, compression_ratio_tolerance, include_bnf_markers = _resolve_parameters(
+            self.config, doc_type, recursive, lossless_fallback, bnf_compliant, 
+            compression_ratio_tolerance, include_bnf_markers
         )
 
         # Initialize default metadata if not provided
@@ -776,41 +839,11 @@ class StandardWorkflow(BaseWorkflow):
 
             results['processed_files'].append(file_result)
 
-            if result.status == WorkflowStatus.SUCCESS:
-                results['success_count'] += 1
-            elif result.status == WorkflowStatus.WARNING:
-                results['warning_count'] += 1
-                if results['status'] == WorkflowStatus.SUCCESS:
-                    results['status'] = WorkflowStatus.WARNING
-            elif result.status == WorkflowStatus.FAILURE:
-                results['error_count'] += 1
-                results['status'] = WorkflowStatus.FAILURE
-            elif result.status == WorkflowStatus.SKIPPED:
-                results['corrupted_count'] += 1
+            # Update status counters
+            self._update_result_status(results, result)
 
             # Update progress with time estimation
-            progress = (len(results['processed_files']) / self.total_files) * 100
-            current_time = time.time()
-            elapsed_time = current_time - self.start_time
-            
-            if len(results['processed_files']) > 0:
-                avg_time_per_file = elapsed_time / len(results['processed_files'])
-                remaining_files = self.total_files - len(results['processed_files'])
-                estimated_remaining_time = avg_time_per_file * remaining_files
-                
-                # Format time nicely
-                if estimated_remaining_time > 3600:
-                    time_str = f"{estimated_remaining_time/3600:.1f}h"
-                elif estimated_remaining_time > 60:
-                    time_str = f"{estimated_remaining_time/60:.1f}m"
-                else:
-                    time_str = f"{estimated_remaining_time:.0f}s"
-                    
-                logger.info(
-                    f"Progress: {progress:.1f}% ({len(results['processed_files'])}/{self.total_files}) - Est. remaining: {time_str}")
-            else:
-                logger.info(
-                    f"Progress: {progress:.1f}% ({len(results['processed_files'])}/{self.total_files})")
+            self._log_progress_with_estimation(len(results['processed_files']), self.total_files, self.start_time)
             
             # Force garbage collection to optimize memory usage
             gc.collect()
