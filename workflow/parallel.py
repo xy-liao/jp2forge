@@ -446,10 +446,10 @@ class ParallelWorkflow(BaseWorkflow):
             metadata = {}
 
         if not os.path.exists(input_dir):
-            logger.error(f"Input directory not found: {input_dir}")
+            logger.error(f"Input directory not found: '{input_dir}'. Please check the path exists and you have read permissions.")
             return {
                 'status': WorkflowStatus.FAILURE,
-                'error': 'Input directory not found'
+                'error': f'Input directory not found: {input_dir}. Please check the path exists and you have read permissions.'
             }
 
         # Initialize results and tracking
@@ -736,11 +736,33 @@ class ParallelWorkflow(BaseWorkflow):
                             elif file_result['status'] == WorkflowStatus.SKIPPED.name:
                                 results['corrupted_count'] += 1
 
-                            # Update progress tracking
+                            # Update progress tracking with time estimation
                             processed_count += 1
                             progress = (processed_count / self.total_files) * 100
-                            logger.info(
-                                f"Progress: {progress:.1f}% ({processed_count}/{self.total_files})")
+                            current_time = time.time()
+                            elapsed_time = current_time - self.start_time
+                            
+                            if processed_count > 0:
+                                avg_time_per_file = elapsed_time / processed_count
+                                remaining_files = self.total_files - processed_count
+                                estimated_remaining_time = avg_time_per_file * remaining_files
+                                
+                                # Format time nicely
+                                if estimated_remaining_time > 3600:
+                                    time_str = f"{estimated_remaining_time/3600:.1f}h"
+                                elif estimated_remaining_time > 60:
+                                    time_str = f"{estimated_remaining_time/60:.1f}m"
+                                else:
+                                    time_str = f"{estimated_remaining_time:.0f}s"
+                                    
+                                logger.info(
+                                    f"Progress: {progress:.1f}% ({processed_count}/{self.total_files}) - Est. remaining: {time_str}")
+                            else:
+                                logger.info(
+                                    f"Progress: {progress:.1f}% ({processed_count}/{self.total_files})")
+                            
+                            # Force garbage collection to optimize memory usage
+                            gc.collect()
 
                             # Log status periodically
                             if processed_count % 10 == 0 or processed_count == self.total_files:

@@ -391,10 +391,10 @@ def main():
 
     # Handle version flag
     if args.version:
-        import pkg_resources
         try:
-            version = pkg_resources.get_distribution("jp2forge").version
-        except pkg_resources.DistributionNotFound:
+            from importlib.metadata import version as get_version
+            version = get_version("jp2forge")
+        except Exception:
             version = "0.9.6"  # Default version if not installed as package
         print(f"JP2Forge version {version}")
         return 0
@@ -534,7 +534,8 @@ def main():
         }
         
         # Generate validation and reports just like in directory processing
-        validate_output_with_jpylyzer(args.output_dir, args.report_dir)
+        output_dir = args.output_dir or config.output_dir
+        validate_output_with_jpylyzer(output_dir, args.report_dir)
         generate_summary_report_with_jpylyzer(single_file_results, config.to_dict(), args.report_dir)
 
         logger.info("-" * 80)
@@ -542,7 +543,22 @@ def main():
 
         if result.output_file:
             orig_size = os.path.getsize(args.input_path) / (1024 * 1024)
-            new_size = os.path.getsize(result.output_file) / (1024 * 1024)
+            
+            # Handle multiple output files (multi-page TIFFs)
+            if ',' in result.output_file:
+                output_files = result.output_file.split(',')
+                total_size = 0
+                valid_files = []
+                for f in output_files:
+                    f = f.strip()
+                    if os.path.exists(f):
+                        total_size += os.path.getsize(f)
+                        valid_files.append(f)
+                new_size = total_size / (1024 * 1024)
+                logger.info(f"Generated {len(valid_files)} JP2 files from multi-page TIFF")
+            else:
+                new_size = os.path.getsize(result.output_file) / (1024 * 1024)
+                
             compression_ratio = orig_size / new_size if new_size > 0 else 0
 
             logger.info(f"Original size: {orig_size:.2f} MB")

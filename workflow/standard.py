@@ -714,10 +714,10 @@ class StandardWorkflow(BaseWorkflow):
             metadata = {}
 
         if not os.path.exists(input_dir):
-            logger.error(f"Input directory not found: {input_dir}")
+            logger.error(f"Input directory not found: '{input_dir}'. Please check the path exists and you have read permissions.")
             return {
                 'status': WorkflowStatus.FAILURE,
-                'error': 'Input directory not found'
+                'error': f'Input directory not found: {input_dir}. Please check the path exists and you have read permissions.'
             }
 
         # Initialize results and tracking
@@ -788,10 +788,32 @@ class StandardWorkflow(BaseWorkflow):
             elif result.status == WorkflowStatus.SKIPPED:
                 results['corrupted_count'] += 1
 
-            # Update progress
+            # Update progress with time estimation
             progress = (len(results['processed_files']) / self.total_files) * 100
-            logger.info(
-                f"Progress: {progress:.1f}% ({len(results['processed_files'])}/{self.total_files})")
+            current_time = time.time()
+            elapsed_time = current_time - self.start_time
+            
+            if len(results['processed_files']) > 0:
+                avg_time_per_file = elapsed_time / len(results['processed_files'])
+                remaining_files = self.total_files - len(results['processed_files'])
+                estimated_remaining_time = avg_time_per_file * remaining_files
+                
+                # Format time nicely
+                if estimated_remaining_time > 3600:
+                    time_str = f"{estimated_remaining_time/3600:.1f}h"
+                elif estimated_remaining_time > 60:
+                    time_str = f"{estimated_remaining_time/60:.1f}m"
+                else:
+                    time_str = f"{estimated_remaining_time:.0f}s"
+                    
+                logger.info(
+                    f"Progress: {progress:.1f}% ({len(results['processed_files'])}/{self.total_files}) - Est. remaining: {time_str}")
+            else:
+                logger.info(
+                    f"Progress: {progress:.1f}% ({len(results['processed_files'])}/{self.total_files})")
+            
+            # Force garbage collection to optimize memory usage
+            gc.collect()
 
             # If there are errors, we still continue processing other files
 
