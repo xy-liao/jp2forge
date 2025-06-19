@@ -208,3 +208,4 @@ benchmark/
 jp2forge.egg-info/
 dist/
 DOCUMENTATION_LINKS_VERIFIED.md
+*.xmp

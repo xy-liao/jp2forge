@@ -67,7 +67,7 @@ def validate_output_with_jpylyzer(output_dir, report_dir):
         json.dump(all_results, f, indent=2)
 
 
-def generate_summary_report_with_jpylyzer(results, config, report_dir):
+def generate_summary_report_with_jpylyzer(results, config, report_dir, full_report=False):
     """
     Generate summary_report.md using only info_jpylyzer.json for validation status.
     """
@@ -137,6 +137,42 @@ def generate_summary_report_with_jpylyzer(results, config, report_dir):
         summary_lines.append(f"Converted Size: {conv_size}")
         summary_lines.append(f"Compression Ratio: {ratio}")
         summary_lines.append(f"Jpylyzer Validation: {is_valid}")
+        
+        # Add detailed metrics for full report mode
+        if full_report:
+            metrics = file_result.get('metrics', {})
+            if metrics:
+                summary_lines.append(f"PSNR: {metrics.get('psnr', 'N/A')} dB")
+                summary_lines.append(f"SSIM: {metrics.get('ssim', 'N/A')}")
+                summary_lines.append(f"MSE: {metrics.get('mse', 'N/A')}")
+                summary_lines.append(f"Quality Passed: {metrics.get('quality_passed', 'N/A')}")
+            
+            # Add processing timing information
+            processing_time = file_result.get('processing_time', 0)
+            if processing_time > 0:
+                summary_lines.append(f"Processing Time: {processing_time:.2f} seconds")
+                
+                # Calculate throughput
+                if file_sizes.get('original_size_bytes'):
+                    throughput_mb_s = (file_sizes['original_size_bytes'] / (1024 * 1024)) / processing_time
+                    summary_lines.append(f"Throughput: {throughput_mb_s:.2f} MB/s")
+            
+            # Add memory usage if available
+            memory_usage = file_result.get('peak_memory_mb', 0)
+            if memory_usage > 0:
+                summary_lines.append(f"Peak Memory Usage: {memory_usage:.1f} MB")
+                
+            # Add BnF specific information
+            if config.get('bnf_compliant', False):
+                target_ratio = file_result.get('target_compression_ratio', 'N/A')
+                actual_ratio = ratio if ratio != 'N/A' else 'N/A'
+                summary_lines.append(f"BnF Target Ratio: {target_ratio}")
+                summary_lines.append(f"BnF Actual Ratio: {actual_ratio}")
+                
+                fallback_reason = file_result.get('fallback_reason', '')
+                if fallback_reason:
+                    summary_lines.append(f"Fallback Reason: {fallback_reason}")
+        
         summary_lines.append("")
 
     with open(Path(report_dir) / "summary_report.md", "w") as f:
@@ -204,6 +240,11 @@ def main():
         "--report-dir",
         default="reports",
         help="Directory for analysis reports"
+    )
+    parser.add_argument(
+        "--full-report",
+        action="store_true",
+        help="Generate detailed reports with quality metrics, processing times, and enhanced validation"
     )
     parser.add_argument(
         "--quality",
@@ -571,7 +612,7 @@ def main():
         logger.info(f"JPylyzer validation reports written to: {args.report_dir}")
 
         # Generate summary report
-        generate_summary_report_with_jpylyzer(results, config.to_dict(), args.report_dir)
+        generate_summary_report_with_jpylyzer(results, config.to_dict(), args.report_dir, args.full_report)
 
         logger.info("-" * 80)
         logger.info(f"Processing status: {results['status'].name}")

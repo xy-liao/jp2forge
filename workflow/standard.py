@@ -836,6 +836,10 @@ class StandardWorkflow(BaseWorkflow):
             # Add file sizes if available
             if result.file_sizes:
                 file_result['file_sizes'] = result.file_sizes
+                
+            # Add metrics if available
+            if result.metrics:
+                file_result['metrics'] = result.metrics
 
             results['processed_files'].append(file_result)
 
