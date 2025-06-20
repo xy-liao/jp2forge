@@ -7,4 +7,4 @@ including conversion, analysis, and metadata handling with BnF compliance suppor
 This is an independent implementation that relies on Pillow for JPEG2000 encoding/decoding operations.
 """
 
-__version__ = "0.9.6"
+__version__ = "0.9.7"
