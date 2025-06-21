@@ -1,6 +1,6 @@
 # JP2Forge
 
-[![PyPI version](https://badge.fury.io/py/jp2forge.svg)](https://badge.fury.io/py/jp2forge) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.8–3.12](https://img.shields.io/badge/python-3.8--3.12-blue.svg)](https://www.python.org/downloads/) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge)
+[![PyPI version](https://badge.fury.io/py/jp2forge.svg)](https://badge.fury.io/py/jp2forge) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.8–3.12](https://img.shields.io/badge/python-3.8--3.12-blue.svg)](https://www.python.org/downloads/) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge) [![Security: SonarQube Compliant](https://img.shields.io/badge/Security-SonarQube%20Compliant-brightgreen.svg)](https://www.sonarsource.com/products/sonarqube/)
 
 > **Supported Python versions:** JP2Forge officially supports Python 3.8 through 3.12 (inclusive). Older versions are not guaranteed to work with all dependencies (e.g., matplotlib >=3.9).
 
