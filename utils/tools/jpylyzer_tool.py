@@ -14,12 +14,14 @@ try:
     from defusedxml import ElementTree as ET
     from defusedxml.ElementTree import fromstring as ET_fromstring
     USING_DEFUSED_XML = True
+    import xml.etree.ElementTree as _ET  # for type hints only
 except ImportError:
     import xml.etree.ElementTree as ET
     from xml.etree.ElementTree import fromstring as ET_fromstring
     import warnings
     warnings.warn("defusedxml not available, falling back to xml.etree.ElementTree. Consider installing defusedxml for security.", ImportWarning)
     USING_DEFUSED_XML = False
+    import xml.etree.ElementTree as _ET  # for type hints only
 
 from ..security import validate_tool_path, validate_file_path, validate_subprocess_args
 
@@ -319,10 +321,10 @@ class JPylyzerTool:
             logger.error(f"Error parsing JPylyzer output: {e}")
             return {"error": f"Failed to parse JPylyzer output: {str(e)}"}
 
-    def _parse_recursive(self, elem: ET.Element, target_dict: Dict[str, Any]) -> None:
+    def _parse_recursive(self, elem: _ET.Element, target_dict: Dict[str, Any]) -> None:
         """
         Recursively parse XML elements into a dictionary.
-
+        
         Args:
             elem: Current XML element
             target_dict: Target dictionary to populate

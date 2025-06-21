@@ -13,7 +13,6 @@ updates:
       - "dependencies"
       - "security"
     rebase-strategy: "auto"
-    automerge: true
     
   # GitHub Actions
   - package-ecosystem: "github-actions"
