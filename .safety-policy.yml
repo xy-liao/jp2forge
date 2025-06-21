@@ -1,0 +1,7 @@
+# Safety Policy for JP2Forge
+# Exempt known false positives and document rationale.
+ignore:
+  # Example: Pillow <8.2.0 flagged for CVE-2021-25287, but not exploitable in our usage
+  - id: 38664  # Pillow CVE-2021-25287
+    reason: "JP2Forge does not use the affected Pillow features (ICNS parser). Safe to ignore."
+  # Add more exemptions as needed, following this format
