@@ -8,8 +8,16 @@ properties from JP2 files.
 import os
 import logging
 import subprocess
-import xml.etree.ElementTree as ET
 from typing import Dict, Any, Optional, List, Union, Tuple
+
+try:
+    from defusedxml import ElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
+    import warnings
+    warnings.warn("defusedxml not available, falling back to xml.etree.ElementTree. Consider installing defusedxml for security.", ImportWarning)
+
+from ..security import validate_tool_path, validate_file_path, validate_subprocess_args
 
 logger = logging.getLogger(__name__)
 
@@ -45,9 +53,9 @@ class JPylyzerTool:
             import shutil
             self.jpylyzer_path = shutil.which('jpylyzer')
 
-        # Check if JPylyzer exists at the provided path
-        if self.jpylyzer_path and not os.path.exists(self.jpylyzer_path):
-            logger.warning(f"JPylyzer not found at: {self.jpylyzer_path}")
+        # Validate JPylyzer path using security validation
+        if self.jpylyzer_path and not validate_tool_path(self.jpylyzer_path, "jpylyzer"):
+            logger.warning(f"JPylyzer validation failed: {self.jpylyzer_path}")
             self.jpylyzer_path = None
 
         # Try to use JPylyzer as a module if executable not found
@@ -136,8 +144,9 @@ class JPylyzerTool:
         Returns:
             Dict[str, Any]: Validation results including validity and properties
         """
-        if not os.path.exists(jp2_file):
-            return {"error": f"File not found: {jp2_file}"}
+        # Validate file path
+        if not validate_file_path(jp2_file):
+            return {"error": f"File validation failed: {jp2_file}"}
 
         if self.use_module:
             return self._validate_with_module(jp2_file)
@@ -154,6 +163,10 @@ class JPylyzerTool:
 
             # Add file to analyze
             cmd.append(jp2_file)
+            
+            # Validate command arguments
+            if not validate_subprocess_args(cmd):
+                return {"error": "Invalid command arguments detected"}
 
             result = subprocess.run(
                 cmd,
@@ -195,7 +208,6 @@ class JPylyzerTool:
             result_elem = jpylyzer.checkOneFile(jp2_file, self.format_type)
 
             # Convert the ElementTree element to a string
-            import xml.etree.ElementTree as ET
             xml_str = ET.tostring(result_elem, encoding='utf-8').decode('utf-8')
 
             # Parse the XML output

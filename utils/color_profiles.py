@@ -47,15 +47,15 @@ def initialize_profiles():
                 try:
                     SRGB_PROFILE = ImageCms.getOpenProfile(filepath)
                     logger.debug(f"Found sRGB profile at {filepath}")
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to load sRGB profile from {filepath}: {e}")
 
             if GRAY_PROFILE is None and "gray" in filename.lower():
                 try:
                     GRAY_PROFILE = ImageCms.getOpenProfile(filepath)
                     logger.debug(f"Found Gray profile at {filepath}")
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to load Gray profile from {filepath}: {e}")
 
     # If profiles couldn't be found, we'll use internal defaults
     if SRGB_PROFILE is None:

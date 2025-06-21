@@ -5,6 +5,7 @@ structlog>=21.1.0  # Enhanced structured logging
 lxml>=4.9.0        # XML processing for metadata
 pyyaml>=6.0        # YAML configuration support
 jpylyzer>=2.2.0    # JPEG2000 validation tool
+defusedxml>=0.7.0  # Secure XML parsing
 
 # Optional dependencies for benchmarking
 matplotlib>=3.9.0  # Plotting library (for benchmark utilities)

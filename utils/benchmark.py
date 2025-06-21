@@ -174,8 +174,8 @@ class BenchmarkSuite:
                         if os.path.exists(output_file):
                             try:
                                 os.remove(output_file)
-                            except:
-                                pass
+                            except Exception as e:
+                                logger.warning(f"Failed to remove output file {output_file}: {e}")
 
                     # Calculate average and improvement
                     avg_time = sum(config_times) / len(config_times)

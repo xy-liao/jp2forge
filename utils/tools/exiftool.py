@@ -11,6 +11,7 @@ import logging
 import tempfile
 import subprocess
 from typing import Dict, Any, Optional, List, Union, Tuple, BinaryIO
+from ..security import validate_tool_path, validate_file_path, validate_subprocess_args
 
 logger = logging.getLogger(__name__)
 
@@ -42,9 +43,9 @@ class ExifTool:
         self.temp_dir = temp_dir
         self.timeout = timeout
 
-        # Validate existence of ExifTool
-        if not os.path.exists(exiftool_path):
-            raise FileNotFoundError(f"ExifTool not found at: {exiftool_path}")
+        # Validate ExifTool path using security validation
+        if not validate_tool_path(exiftool_path, "exiftool"):
+            raise FileNotFoundError(f"ExifTool validation failed: {exiftool_path}")
 
         logger.info(f"Initialized ExifTool interface with exiftool at {exiftool_path}")
 
@@ -92,6 +93,10 @@ class ExifTool:
         Returns:
             dict: Metadata dictionary
         """
+        # Validate file path
+        if not validate_file_path(file_path):
+            raise FileNotFoundError(f"File validation failed: {file_path}")
+            
         try:
             # Build command
             cmd = [self.exiftool_path]
@@ -111,6 +116,10 @@ class ExifTool:
 
             # Add file path
             cmd.append(file_path)
+            
+            # Validate command arguments
+            if not validate_subprocess_args(cmd):
+                raise ValueError("Invalid command arguments detected")
 
             # Run command
             logger.debug(f"Running ExifTool command: {' '.join(cmd)}")

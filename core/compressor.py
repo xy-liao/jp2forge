@@ -278,8 +278,8 @@ class JPEG2000Compressor:
                         os.remove(temp_file)
                     else:
                         break
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to cleanup temporary files: {e}")
 
             return False
 
