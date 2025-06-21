@@ -41,7 +41,7 @@ brew install exiftool
 # Download from https://exiftool.org/ and follow installation instructions
 ```
 
-#### Option 2: Via pip (When Available on PyPI)
+#### Option 2: Via pip (Recommended for Users)
 
 ```bash
 pip install jp2forge
@@ -151,7 +151,6 @@ JP2Forge is production-ready with comprehensive JPEG2000 conversion capabilities
 - Publication-ready codebase structure
 
 **🔄 Ongoing Development:**
-- PyPI package publication
 - Comprehensive unit test coverage expansion
 - Performance optimization for large datasets
 - Docker containerization support
