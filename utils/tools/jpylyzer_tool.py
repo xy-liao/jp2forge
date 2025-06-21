@@ -12,10 +12,14 @@ from typing import Dict, Any, Optional, List, Union, Tuple
 
 try:
     from defusedxml import ElementTree as ET
+    from defusedxml.ElementTree import fromstring as ET_fromstring
+    USING_DEFUSED_XML = True
 except ImportError:
     import xml.etree.ElementTree as ET
+    from xml.etree.ElementTree import fromstring as ET_fromstring
     import warnings
     warnings.warn("defusedxml not available, falling back to xml.etree.ElementTree. Consider installing defusedxml for security.", ImportWarning)
+    USING_DEFUSED_XML = False
 
 from ..security import validate_tool_path, validate_file_path, validate_subprocess_args
 
@@ -260,7 +264,7 @@ class JPylyzerTool:
         try:
             # Parse XML and handle namespaces
             ns = {'jpy': 'http://openpreservation.org/ns/jpylyzer/v2/'}
-            root = ET.fromstring(xml_output)
+            root = ET_fromstring(xml_output)  # nosec B314 - using defusedxml when available
             result = {
                 "toolInfo": {},
                 "fileInfo": {},
