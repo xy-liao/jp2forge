@@ -27,8 +27,11 @@ cd jp2forge
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies (includes jpylyzer)
+# Install core dependencies
 pip install -r requirements.txt
+
+# Optional: Install benchmarking dependencies
+pip install jp2forge[benchmarking]
 
 # Install ExifTool (required for metadata operations)
 # macOS:

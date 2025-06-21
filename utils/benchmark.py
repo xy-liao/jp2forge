@@ -13,8 +13,12 @@ import argparse
 from datetime import datetime
 from typing import Dict, Any, List, Optional, Tuple, Union
 import concurrent.futures
-import pandas as pd
-import matplotlib.pyplot as plt
+try:
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    BENCHMARKING_AVAILABLE = True
+except ImportError:
+    BENCHMARKING_AVAILABLE = False
 import numpy as np
 
 from core.types import WorkflowConfig, DocumentType, CompressionMode
@@ -41,6 +45,11 @@ class BenchmarkSuite:
         results_dir: Optional[str] = None,
         enable_profiling: bool = True
     ):
+        if not BENCHMARKING_AVAILABLE:
+            raise ImportError(
+                "Benchmarking dependencies not available. "
+                "Install with: pip install jp2forge[benchmarking]"
+            )
         """
         Initialize the benchmark suite.
 

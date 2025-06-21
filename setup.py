@@ -39,10 +39,14 @@ setup(
         "lxml>=4.9.0",
         "pyyaml>=6.0",
         "jpylyzer>=2.2.0",
-        "matplotlib>=3.9.0",
-        "pandas>=2.2.0",
     ],
-    python_requires=">=3.8",
+    extras_require={
+        "benchmarking": [
+            "matplotlib>=3.9.0",
+            "pandas>=2.2.0",
+        ],
+    },
+    python_requires=">=3.11",
     entry_points={
         "console_scripts": [
             "jp2forge=cli.workflow:main",

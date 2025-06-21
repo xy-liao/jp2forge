@@ -12,8 +12,6 @@ import sys
 import json
 import logging
 import argparse
-import tempfile
-import shutil
 
 # Add parent directory to path to resolve imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

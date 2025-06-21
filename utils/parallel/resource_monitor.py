@@ -3,6 +3,9 @@ Resource monitoring functionality for parallel processing.
 
 This module provides tools to monitor system resources like CPU, memory,
 and disk usage to inform adaptive parallel processing decisions.
+
+NOTE: This module duplicates functionality from utils/resource_monitor.py
+and is currently unused in the main codebase. Consider consolidation.
 """
 
 import os

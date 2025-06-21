@@ -427,7 +427,7 @@ def main():
             from importlib.metadata import version as get_version
             version = get_version("jp2forge")
         except Exception:
-            version = "0.9.6"  # Default version if not installed as package
+            version = "0.9.7"  # Default version if not installed as package
         print(f"JP2Forge version {version}")
         return 0
 
