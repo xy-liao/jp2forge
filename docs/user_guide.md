@@ -18,9 +18,11 @@ This guide provides comprehensive instructions for using JP2Forge to convert ima
 
 ## 1. Installation
 
+> **Supported Python versions:** JP2Forge officially supports Python 3.8 through 3.12 (inclusive).
+
 ### System Requirements
 
-- Python 3.9 or newer
+- Python 3.8, 3.9, 3.10, 3.11, or 3.12
 - 4GB RAM minimum (8GB+ recommended for large images)
 - External dependencies:
   - ExifTool (required for metadata handling)

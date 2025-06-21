@@ -20,7 +20,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: '3.12'  # Only 3.11 and 3.12 are supported
     
     - name: Install dependencies
       run: |

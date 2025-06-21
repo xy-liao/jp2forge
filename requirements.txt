@@ -1,3 +1,7 @@
+# JP2Forge requirements
+# Supported Python versions: 3.8 through 3.12 (inclusive)
+# (matplotlib>=3.9.0 and pandas>=2.2.0 require Python >=3.11)
+
 pillow>=9.0.0       # Image processing library
 numpy>=1.20.0      # Numerical operations
 psutil>=5.8.0      # System resource monitoring
@@ -8,8 +12,8 @@ jpylyzer>=2.2.0    # JPEG2000 validation tool
 defusedxml>=0.7.0  # Secure XML parsing
 
 # Optional dependencies for benchmarking
-matplotlib>=3.9.0  # Plotting library (for benchmark utilities)
-pandas>=2.2.0      # Data analysis library (for benchmark utilities)
+matplotlib>=3.3.0  # Plotting library (for benchmark utilities, >=3.3.0 supports Python 3.8+)
+pandas>=1.2.0      # Data analysis library (for benchmark utilities, >=1.2.0 supports Python 3.8+)
 
 # Note: The ExifTool CLI executable is required for metadata handling
 # Install it separately following your OS's installation method:

@@ -1,5 +1,7 @@
 # Security Guide for JP2Forge
 
+> **Supported Python versions:** JP2Forge officially supports Python 3.8 through 3.12 (inclusive).
+
 ## Overview
 This guide describes the security scanning, alert handling, and emergency response procedures for JP2Forge.
 
