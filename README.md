@@ -1,16 +1,19 @@
 # JP2Forge
 
-[![PyPI version](https://badge.fury.io/py/jp2forge.svg)](https://badge.fury.io/py/jp2forge) [![Version: 0.9.7](https://img.shields.io/badge/Version-0.9.7-blue.svg)](https://github.com/xy-liao/jp2forge/releases/tag/v0.9.7) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.8–3.12](https://img.shields.io/badge/python-3.8--3.12-blue.svg)](https://www.python.org/downloads/) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge) [![Security: SonarQube Compliant](https://img.shields.io/badge/Security-SonarQube%20Compliant-brightgreen.svg)](https://www.sonarsource.com/products/sonarqube/)
+[![PyPI version](https://badge.fury.io/py/jp2forge.svg)](https://badge.fury.io/py/jp2forge) [![Version: 0.9.8](https://img.shields.io/badge/Version-0.9.8-blue.svg)](https://github.com/xy-liao/jp2forge/releases/tag/v0.9.8) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.8–3.12](https://img.shields.io/badge/python-3.8--3.12-blue.svg)](https://www.python.org/downloads/) [![Project Status: Active](https://img.shields.io/badge/Project%20Status-Active-green.svg)](https://github.com/xy-liao/jp2forge) [![Security: SonarQube Compliant](https://img.shields.io/badge/Security-SonarQube%20Compliant-brightgreen.svg)](https://www.sonarsource.com/products/sonarqube/)
 
-JP2Forge is a comprehensive Python tool for converting images to JPEG2000 format with support for standard and BnF (Bibliothèque nationale de France) compliant workflows.
+JP2Forge is a Python tool for JPEG2000 conversion built specifically for **cultural heritage digitization and archival workflows**. It targets institutions that must meet strict preservation standards — in particular, compliance with the **BnF (Bibliothèque nationale de France)** technical specifications for digital collections.
+
+> **Not sure if JP2Forge is right for you?**
+> If you need a quick one-off format conversion, a general-purpose tool like `magick input.tif output.jp2` or a lightweight library like [`glymur`](https://glymur.readthedocs.io/) will serve you better. JP2Forge is purpose-built for institutions where conversion quality must be mathematically verified, metadata chains of custody must be preserved, and thousands of high-resolution TIFFs must be processed reliably in batch.
 
 **Key capabilities:**
-- High-quality JPEG2000 conversion with multiple compression modes
-- BnF-compliant processing for cultural heritage digitization
-- Parallel processing for efficient batch operations
-- Quality analysis and validation with PSNR/SSIM metrics
+- BnF-compliant JPEG2000 conversion with fixed compression ratios and XMP metadata in UUID box
+- PSNR/SSIM quality validation — mathematical proof that conversions meet archival thresholds
+- ExifTool-based metadata preservation across the full conversion pipeline
+- Parallel batch processing for large-scale institutional digitization campaigns
 - Multi-page TIFF support with automatic page extraction
-- Comprehensive metadata preservation and XMP integration
+- Supervised compression mode with automatic lossless fallback
 
 ## Quick Start
 
