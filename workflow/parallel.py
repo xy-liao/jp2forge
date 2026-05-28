@@ -684,84 +684,65 @@ class ParallelWorkflow(BaseWorkflow):
         try:
             # Create a list to store worker count samples
             worker_count_samples = []
-            files_to_process = list(image_files)  # Make a copy so we can modify it
             processed_count = 0
 
-            # Process files in batches until all are done
-            while files_to_process:
-                # Get current recommended worker count
-                current_workers = self.resource_monitor.get_recommended_workers()
-                worker_count_samples.append(current_workers)
+            logger.info(f"Processing {len(image_files)} files using persistent worker pool (max workers: {self.max_workers})")
 
-                # Determine batch size - how many files to process in this iteration
-                batch_size = min(current_workers, len(files_to_process))
-                if batch_size < 1:
-                    batch_size = 1
+            with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
+                # Submit all files upfront
+                future_to_file = {
+                    executor.submit(worker_func, file_path): file_path
+                    for file_path in image_files
+                }
 
-                # Get a batch of files to process
-                batch_files = files_to_process[:batch_size]
-                files_to_process = files_to_process[batch_size:]
+                # Process results as they complete
+                for future in as_completed(future_to_file):
+                    # Continue to sample resource_monitor.get_recommended_workers() periodically for the stats
+                    current_workers = self.resource_monitor.get_recommended_workers()
+                    worker_count_samples.append(current_workers)
 
-                logger.info(
-                    f"Processing batch of {len(batch_files)} files with {batch_size} workers")
+                    try:
+                        file_result = future.result()
+                        results['processed_files'].append(file_result)
 
-                # Process this batch using a new ProcessPoolExecutor
-                # This avoids any issues with shared state
-                with ProcessPoolExecutor(max_workers=batch_size) as executor:
-                    futures = []
-                    for file_path in batch_files:
-                        # Submit the standalone worker function instead of a method on this class
-                        future = executor.submit(worker_func, file_path)
-                        futures.append(future)
+                        # Update status counters
+                        self._update_result_status(results, file_result)
 
-                    # Process results as they complete
-                    for future in as_completed(futures):
-                        try:
-                            file_result = future.result()
-                            results['processed_files'].append(file_result)
-
-                            # Update status counters
-                            self._update_result_status(results, file_result)
-
-                            # Update progress tracking with time estimation
-                            processed_count += 1
-                            progress = (processed_count / self.total_files) * 100
-                            current_time = time.time()
-                            elapsed_time = current_time - self.start_time
+                        # Update progress tracking with time estimation
+                        processed_count += 1
+                        progress = (processed_count / self.total_files) * 100
+                        current_time = time.time()
+                        elapsed_time = current_time - self.start_time
+                        
+                        if processed_count > 0:
+                            avg_time_per_file = elapsed_time / processed_count
+                            remaining_files = self.total_files - processed_count
+                            estimated_remaining_time = avg_time_per_file * remaining_files
                             
-                            if processed_count > 0:
-                                avg_time_per_file = elapsed_time / processed_count
-                                remaining_files = self.total_files - processed_count
-                                estimated_remaining_time = avg_time_per_file * remaining_files
-                                
-                                # Format time nicely
-                                if estimated_remaining_time > 3600:
-                                    time_str = f"{estimated_remaining_time/3600:.1f}h"
-                                elif estimated_remaining_time > 60:
-                                    time_str = f"{estimated_remaining_time/60:.1f}m"
-                                else:
-                                    time_str = f"{estimated_remaining_time:.0f}s"
-                                    
-                                logger.info(
-                                    f"Progress: {progress:.1f}% ({processed_count}/{self.total_files}) - Est. remaining: {time_str}")
+                            # Format time nicely
+                            if estimated_remaining_time > 3600:
+                                time_str = f"{estimated_remaining_time/3600:.1f}h"
+                            elif estimated_remaining_time > 60:
+                                time_str = f"{estimated_remaining_time/60:.1f}m"
                             else:
-                                logger.info(
-                                    f"Progress: {progress:.1f}% ({processed_count}/{self.total_files})")
-                            
-                            # Force garbage collection to optimize memory usage
-                            gc.collect()
+                                time_str = f"{estimated_remaining_time:.0f}s"
+                                
+                            logger.info(
+                                f"Progress: {progress:.1f}% ({processed_count}/{self.total_files}) - Est. remaining: {time_str}")
+                        else:
+                            logger.info(
+                                f"Progress: {progress:.1f}% ({processed_count}/{self.total_files})")
+                        
+                        # Force garbage collection to optimize memory usage
+                        gc.collect()
 
-                            # Log status periodically
-                            self._log_progress(processed_count, self.total_files, self.start_time, current_workers)
-                        except Exception as e:
-                            logger.error(f"Error processing file: {str(e)}")
-                            results['error_count'] += 1
-                            if results['status'] == WorkflowStatus.SUCCESS:
-                                results['status'] = WorkflowStatus.FAILURE
-
-                # Sleep briefly between batches to allow resource monitor to update
-                if files_to_process:
-                    time.sleep(0.5)
+                        # Log status periodically
+                        self._log_progress(processed_count, self.total_files, self.start_time, current_workers)
+                    except Exception as e:
+                        logger.error(f"Error processing file: {str(e)}")
+                        results['error_count'] += 1
+                        if results['status'] == WorkflowStatus.SUCCESS:
+                            results['status'] = WorkflowStatus.FAILURE
 
             # Calculate average worker count
             if worker_count_samples:

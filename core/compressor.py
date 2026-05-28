@@ -130,7 +130,7 @@ class JPEG2000Compressor:
                             img = ensure_jp2_compatible_profile(img)
 
                             # Configure compression parameters based on document type
-                            params = self._get_compression_params(doc_type, use_lossless)
+                            params = self._get_compression_params(doc_type, use_lossless, img_size=img.size)
 
                             # Convert to JPEG2000
                             img.save(
@@ -203,91 +203,54 @@ class JPEG2000Compressor:
                 num_chunks = math.ceil(height / rows_per_chunk)
                 logger.info(f"Image size: {width}x{height}, processing in {num_chunks} chunks")
 
-                # Use a temporary buffer for each piece
-                temp_pieces = []
+                # Create destination image once in RAM
+                merged_img = Image.new(mode, (width, height))
 
                 # Process image in chunks
                 for i in range(num_chunks):
                     start_row = i * rows_per_chunk
                     end_row = min((i + 1) * rows_per_chunk, height)
-                    current_rows = end_row - start_row
 
                     # Create a box for cropping (left, upper, right, lower)
                     box = (0, start_row, width, end_row)
 
-                    # Create a temporary file for this chunk
-                    temp_file = f"{output_file}_chunk_{i}.jp2"
-                    temp_pieces.append(temp_file)
+                    logger.info(
+                        f"Processing chunk {i+1}/{num_chunks}: rows {start_row}-{end_row}")
 
-                    # Process this chunk
-                    with img.crop(box) as chunk:
-                        logger.info(
-                            f"Processing chunk {i+1}/{num_chunks}: rows {start_row}-{end_row}")
+                    # Crop this chunk
+                    chunk = img.crop(box)
 
-                        # Configure compression parameters
-                        params = self._get_compression_params(doc_type, lossless)
+                    # Paste chunk into destination image
+                    merged_img.paste(chunk, (0, start_row))
 
-                        # Save chunk
-                        chunk.save(temp_file, format="JPEG2000", **params)
+                    # Delete the chunk reference to free memory
+                    del chunk
 
                     # Force garbage collection after each chunk
                     gc.collect()
 
-                # Now we need to merge the pieces into a single JP2 file
-                # This is challenging since JP2 doesn't have a standard way to concatenate images
-                # For now, we'll reconstruct by reading the chunks and creating a new image
+                # Configure compression parameters
+                params = self._get_compression_params(doc_type, lossless, img_size=(width, height))
 
-                # First, create a destination image with the right dimensions
-                merged_img = Image.new(mode, (width, height))
-
-                # Paste each chunk into the right position
-                for i, temp_file in enumerate(temp_pieces):
-                    start_row = i * rows_per_chunk
-
-                    try:
-                        with Image.open(temp_file) as chunk:
-                            # Calculate position for pasting
-                            box = (0, start_row)
-                            merged_img.paste(chunk, box)
-                    except Exception as e:
-                        logger.error(f"Error reading chunk {i}: {str(e)}")
-                        return False
-
-                # Save the merged image
-                params = self._get_compression_params(doc_type, lossless)
+                # Save merged image once to final destination
                 merged_img.save(output_file, format="JPEG2000", **params)
 
-                # Clean up temporary files
-                for temp_file in temp_pieces:
-                    try:
-                        if os.path.exists(temp_file):
-                            os.remove(temp_file)
-                    except Exception as e:
-                        logger.warning(f"Failed to remove temporary file {temp_file}: {str(e)}")
+                # Cleanup destination image
+                del merged_img
+                gc.collect()
 
                 return True
 
         except Exception as e:
             logger.error(f"Error in chunked conversion: {str(e)}")
-
-            # Clean up any temporary files that might exist
-            try:
-                for i in range(1000):  # Arbitrary large number
-                    temp_file = f"{output_file}_chunk_{i}.jp2"
-                    if os.path.exists(temp_file):
-                        os.remove(temp_file)
-                    else:
-                        break
-            except Exception as e:
-                logger.warning(f"Failed to cleanup temporary files: {e}")
-
             return False
 
     def _get_compression_params(
         self,
         doc_type: DocumentType,
         lossless: bool,
-        bnf_compliant: bool = False
+        bnf_compliant: bool = False,
+        img_size: Optional[Tuple[int, int]] = None
     ) -> dict:
         """Get compression parameters based on document type.
 
@@ -295,12 +258,18 @@ class JPEG2000Compressor:
             doc_type: Type of document being processed
             lossless: Whether to use lossless compression
             bnf_compliant: Whether to use BnF compliant parameters
+            img_size: Optional image size tuple (width, height)
 
         Returns:
             dict: Compression parameters
         """
+        num_res = self.num_resolutions
+        if img_size:
+            max_res = max(1, int(math.log2(min(img_size))))
+            num_res = min(num_res, max_res)
+
         params = {
-            "num_resolutions": self.num_resolutions,
+            "num_resolutions": num_res,
             "progression": self.progression_order,
             "irreversible": not lossless,
         }
@@ -404,8 +373,9 @@ class JPEG2000Compressor:
                 img = ensure_jp2_compatible_profile(img)
 
                 # Get basic parameters
+                max_res = min(self.num_resolutions, max(1, int(math.log2(min(img.size)))))
                 params = {
-                    "num_resolutions": self.num_resolutions,
+                    "num_resolutions": max_res,
                     "progression": self.progression_order,
                     "irreversible": not lossless,
                     "quality_mode": "rates",
