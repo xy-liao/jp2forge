@@ -179,9 +179,9 @@ class WorkflowConfig:
             bnf_compliant: Whether to use BnF compliant settings
             compression_ratio_tolerance: Tolerance for compression ratio
             include_bnf_markers: Whether to include BnF robustness markers
-            use_memory_pool: Whether to use memory pooling for better performance
-            memory_pool_size_mb: Size of each memory pool block in MB
-            memory_pool_max_blocks: Maximum number of memory pool blocks
+            use_memory_pool: (deprecated, unused)
+            memory_pool_size_mb: (deprecated, unused)
+            memory_pool_max_blocks: (deprecated, unused)
             enable_profiling: Enable performance profiling
             detailed_memory_tracking: Enable detailed memory tracking (requires profiling)
             no_compression: Skip compression step (for debugging)

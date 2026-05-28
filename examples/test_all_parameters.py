@@ -280,8 +280,8 @@ def main():
         )
         run_test(config, input_file, f"BnF Compliance (Tolerance: {tolerance})")
     
-    # 12. Test memory pool options
-    print_section("12. Memory Pool Options")
+    # 12. Test memory pool options (Note: memory pool is now deprecated/ignored)
+    print_section("12. Memory Pool Options (Deprecated/Ignored)")
     memory_pool_dir = output_base / "memory_pool"
     os.makedirs(memory_pool_dir, exist_ok=True)
     
