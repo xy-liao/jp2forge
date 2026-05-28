@@ -147,7 +147,7 @@ For a complete list of all options, see the [CLI Reference](docs/cli_reference.m
 
 JP2Forge is production-ready with comprehensive JPEG2000 conversion capabilities. Recent improvements include:
 
-**✅ Completed (v0.9.6+):**
+**Completed (v0.9.6+):**
 - Refactored codebase with eliminated code duplication
 - Shared utility modules for better maintainability
 - Enhanced error handling and progress tracking

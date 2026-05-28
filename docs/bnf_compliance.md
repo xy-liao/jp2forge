@@ -351,7 +351,7 @@ These documents provide the technical specifications that JP2Forge implements fo
 
 JP2Forge provides **comprehensive BnF compliance** with a **95% compliance score** across all critical areas. This assessment is based on analysis of available BnF technical documentation and industry standards for cultural heritage digitization.
 
-#### ✅ Fully Implemented Areas
+#### Fully Implemented Areas
 
 **Compression Standards**
 - ✓ Fixed compression ratios for all BnF document types (4:1, 6:1, 16:1)
@@ -378,7 +378,7 @@ JP2Forge provides **comprehensive BnF compliance** with a **95% compliance score
 - ✓ Parallel processing compatibility for batch operations
 - ✓ Comprehensive documentation and examples
 
-#### ⚠️ Areas for Enhancement
+#### Areas for Enhancement
 
 **Current BnF Specification Alignment**
 - **Status**: Implementation based on available 2015/2021 BnF documents
