@@ -49,7 +49,9 @@ def standalone_process_file_worker(
     bnf_compliant: bool,
     compression_ratio_tolerance: float,
     include_bnf_markers: bool,
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = None,
+    memory_limit_mb: int = 4096,
+    chunk_size: int = 1000000
 ) -> Dict[str, Any]:
     """
     Process a single file without requiring class instance state.
@@ -86,7 +88,12 @@ def standalone_process_file_worker(
             num_resolutions=num_resolutions,
             progression_order=progression_order,
             compression_mode=compression_mode,
-            lossless_fallback=lossless_fallback
+            lossless_fallback=lossless_fallback,
+            bnf_compliant=bnf_compliant,
+            compression_ratio_tolerance=compression_ratio_tolerance,
+            include_bnf_markers=include_bnf_markers,
+            memory_limit_mb=memory_limit_mb,
+            chunk_size=chunk_size
         )
 
         # Create a fresh workflow instance specific to this worker
@@ -225,7 +232,9 @@ class ParallelWorkflow(BaseWorkflow):
             bnf_compliant=bnf_compliant,
             compression_ratio_tolerance=compression_ratio_tolerance,
             include_bnf_markers=include_bnf_markers,
-            metadata=metadata
+            metadata=metadata,
+            memory_limit_mb=self.config.memory_limit_mb,
+            chunk_size=self.config.chunk_size
         )
 
     def _update_result_status(self, results, file_result):
