@@ -157,18 +157,20 @@ class XMPManager:
             else:
                 logger.warning(f"Skipping metadata property without namespace prefix: {key}")
 
-        # Convert to string
+        # Convert to string (no XML declaration: XMP packets embedded in
+        # files must start with the xpacket processing instruction)
         xmp_xml = etree.tostring(
             xmpmeta,
             encoding='utf-8',
-            xml_declaration=True,
+            xml_declaration=False,
             pretty_print=True
         ).decode('utf-8')
 
         # Add XMP packet wrapper if requested
+        # (begin attribute must be the actual U+FEFF character per XMP spec)
         if include_packet_wrapper:
             xmp_xml = (
-                '<?xpacket begin="\\xEF\\xBB\\xBF" id="W5M0MpCehiHzreSzNTczkc9d"?>\n'
+                '<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>\n'
                 + xmp_xml +
                 '\n<?xpacket end="r"?>'
             )

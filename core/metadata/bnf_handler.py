@@ -14,7 +14,6 @@ See: https://www.bnf.fr/sites/default/files/2018-11/ref_num_fichier_image_v2.pdf
 import os
 import logging
 import subprocess
-import tempfile
 from datetime import datetime
 from typing import Dict, Any, Optional, Tuple, List, Union
 
@@ -66,6 +65,46 @@ class BnFMetadataHandler(MetadataHandler):
         if debug:
             logger.setLevel(logging.DEBUG)
             logger.debug(f"BnFMetadataHandler initialized with ExifTool: {base_handler.exiftool}")
+
+    def write_metadata(
+        self,
+        jp2_file: str,
+        metadata: Optional[Dict[str, Any]] = None,
+        compression_mode: str = "supervised",
+        num_resolutions: int = 10,
+        progression_order: str = "RPCL",
+        bnf_compliant: bool = True
+    ) -> bool:
+        """Write metadata, routing to the BnF-compliant XMP writer.
+
+        Keeps the same interface as MetadataHandler.write_metadata so
+        workflows can use either handler interchangeably. BnF-specific
+        fields (dcterms:isPartOf, dcterms:provenance, dc:relation,
+        dc:source) are read from the metadata dictionary.
+
+        Args:
+            jp2_file: Path to JPEG2000 file
+            metadata: Additional metadata to write
+            compression_mode: Compression mode used
+            num_resolutions: Number of resolution levels used
+            progression_order: Progression order used
+            bnf_compliant: If False, fall back to standard metadata writing
+
+        Returns:
+            bool: True if successful
+        """
+        if not bnf_compliant:
+            return super().write_metadata(
+                jp2_file, metadata, compression_mode,
+                num_resolutions, progression_order, False
+            )
+        return self.write_bnf_metadata(
+            jp2_file,
+            metadata or {},
+            compression_mode=compression_mode,
+            num_resolutions=num_resolutions,
+            progression_order=progression_order
+        )
 
     def write_bnf_metadata(
         self,
@@ -128,51 +167,12 @@ class BnFMetadataHandler(MetadataHandler):
                 progression_order
             )
 
-            # Write XMP to a temporary file
-            tmp_path = None
-            try:
-                with tempfile.NamedTemporaryFile(suffix=".xmp", mode="w", delete=False) as tmp:
-                    tmp.write(xmp_data)
-                    tmp_path = tmp.name
-
-                # Use exiftool to embed the XMP in the JP2 file with BnF UUID
-                cmd = [
-                    self.exiftool,
-                    "-XMP-xmpmeta:all=",  # Clear existing XMP
-                    f"-XMP-xmpmeta<={tmp_path}",  # Add XMP from file
-                    f"-XMP-xmpmeta:UUID={self.bnf_uuid}",  # Set BnF UUID
-                    "-overwrite_original",
-                    jp2_file
-                ]
-
-                try:
-                    result = subprocess.run(
-                        cmd,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                        text=True,  # Get string output
-                        check=False  # Handle exceptions manually for better error messages
-                    )
-
-                    if result.returncode != 0:
-                        error_msg = result.stderr.strip()
-                        logger.error(f"ExifTool error: {error_msg}")
-                        raise RuntimeError(f"ExifTool failed with error: {error_msg}")
-
-                    logger.info(f"Wrote BnF metadata to {jp2_file}")
-                    return True
-
-                except subprocess.SubprocessError as e:
-                    logger.error(f"Failed to execute ExifTool: {str(e)}")
-                    raise RuntimeError(f"ExifTool execution failed: {str(e)}") from e
-
-            finally:
-                # Clean up temporary file
-                if tmp_path and os.path.exists(tmp_path):
-                    try:
-                        os.unlink(tmp_path)
-                    except OSError as e:
-                        logger.warning(f"Failed to remove temporary file {tmp_path}: {str(e)}")
+            # Embed the packet in the JP2 XMP UUID box via ExifTool.
+            # Note: the "BnF UUID" (self.bnf_uuid) is the standard JP2 XMP
+            # box UUID, which is exactly where ExifTool writes the packet.
+            self._embed_xmp(jp2_file, xmp_data)
+            logger.info(f"Wrote BnF metadata to {jp2_file}")
+            return True
 
         except Exception as e:
             logger.error(f"Error writing BnF metadata: {str(e)}")

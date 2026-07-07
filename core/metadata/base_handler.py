@@ -14,6 +14,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional, Tuple, List, Union
 
 from core.metadata.xmp_utils import create_standard_metadata
+from utils.xml.xmp_manager import XMPManager
 
 logger = logging.getLogger(__name__)
 
@@ -215,23 +216,65 @@ class MetadataHandler:
             else:
                 metadata = {}
 
-            # Standard metadata writing (not BnF compliant)
-            # In a production implementation, you would use
-            # a library like python-xmp-toolkit or call exiftool directly
-            metadata_file = f"{jp2_file}.xmp"
-            try:
-                with open(metadata_file, 'w') as f:
-                    json.dump(xmp_data, f, indent=4)
-            except OSError as e:
-                logger.error(f"Failed to write metadata file {metadata_file}: {str(e)}")
-                return False
-
-            logger.info(f"Wrote metadata to {jp2_file}")
-            return True
+            # Build an XMP packet and embed it in the JP2 via ExifTool
+            xmp_string = XMPManager().create_xmp_with_metadata(xmp_data)
+            return self._embed_xmp(jp2_file, xmp_string)
 
         except Exception as e:
             logger.error(f"Error writing metadata: {str(e)}")
-            return False
+            raise
+
+    def _embed_xmp(self, jp2_file: str, xmp_string: str) -> bool:
+        """Embed an XMP packet in a JP2 file using ExifTool.
+
+        ExifTool stores the packet in the standard JP2 XMP UUID box
+        (BE7ACFCB-97A9-42E8-9C71-999491E3AFAC).
+
+        Args:
+            jp2_file: Path to JPEG2000 file
+            xmp_string: Complete XMP packet as a string
+
+        Returns:
+            bool: True if the packet was embedded
+
+        Raises:
+            RuntimeError: If ExifTool is unavailable or the embed fails
+        """
+        if not self.exiftool:
+            raise RuntimeError(
+                "ExifTool is required to write metadata but was not found")
+
+        tmp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                    suffix=".xmp", mode="w", encoding="utf-8", delete=False) as tmp:
+                tmp.write(xmp_string)
+                tmp_path = tmp.name
+
+            result = subprocess.run(
+                [self.exiftool, f"-XMP<={tmp_path}", "-overwrite_original", jp2_file],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=False
+            )
+
+            # ExifTool exits 0 even when nothing was written, so verify
+            # that it reports an actual update
+            if result.returncode != 0 or "1 image files updated" not in result.stdout:
+                raise RuntimeError(
+                    "ExifTool failed to embed XMP: "
+                    f"{(result.stderr or result.stdout).strip()}")
+
+            logger.info(f"Embedded XMP metadata in {jp2_file}")
+            return True
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                try:
+                    os.unlink(tmp_path)
+                except OSError as e:
+                    logger.warning(
+                        f"Failed to remove temporary file {tmp_path}: {str(e)}")
 
     def validate_metadata(
         self,

@@ -339,8 +339,8 @@ class StandardWorkflow(BaseWorkflow):
                     try:
                         bnf_handler = self._setup_bnf_handler()
                         metadata_dict = self._setup_bnf_metadata(metadata, input_file)
-                        
-                        self.metadata_handler.write_metadata(
+
+                        bnf_handler.write_metadata(
                             output_file,
                             metadata_dict,
                             compression_mode_str,
@@ -587,8 +587,8 @@ class StandardWorkflow(BaseWorkflow):
                     if bnf_compliant or compression_mode == CompressionMode.BNF_COMPLIANT:
                         bnf_handler = self._setup_bnf_handler()
                         page_metadata_dict = self._setup_bnf_metadata(page_metadata, input_file, page_num + 1)
-                        
-                        self.metadata_handler.write_metadata(
+
+                        bnf_handler.write_metadata(
                             output_file,
                             page_metadata_dict,
                             compression_mode.value,
