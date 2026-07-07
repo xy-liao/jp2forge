@@ -281,6 +281,23 @@ def should_process_in_chunks(input_file: str, memory_limit_mb: int) -> Tuple[boo
         return True, None
 
 
+def peak_signal_value(array: np.ndarray) -> float:
+    """
+    Determine the peak signal value for an image array based on its dtype.
+
+    Args:
+        array: Image as NumPy array
+
+    Returns:
+        float: Peak value (e.g. 255 for uint8, 65535 for uint16)
+    """
+    if np.issubdtype(array.dtype, np.integer):
+        return float(np.iinfo(array.dtype).max)
+    # Float images: assume unit range unless values exceed it
+    max_val = float(np.max(array)) if array.size else 1.0
+    return 1.0 if max_val <= 1.0 else 255.0 if max_val <= 255.0 else 65535.0
+
+
 def calculate_mse(orig_array: np.ndarray, conv_array: np.ndarray) -> float:
     """
     Calculate Mean Square Error between images.
@@ -291,54 +308,130 @@ def calculate_mse(orig_array: np.ndarray, conv_array: np.ndarray) -> float:
 
     Returns:
         float: Mean Square Error
+
+    Raises:
+        ValueError: If the image shapes do not match
     """
-    return np.mean((orig_array - conv_array) ** 2)
+    if orig_array.shape != conv_array.shape:
+        raise ValueError(
+            f"Image shapes do not match: {orig_array.shape} vs {conv_array.shape}")
+    # Cast to float64 before subtracting: integer arrays (uint8/uint16)
+    # wrap around on subtraction and squaring, corrupting the metric
+    diff = orig_array.astype(np.float64) - conv_array.astype(np.float64)
+    return float(np.mean(diff ** 2))
 
 
-def calculate_psnr(mse: float) -> float:
+def calculate_psnr(mse: float, max_pixel: float = 255.0) -> float:
     """
     Calculate Peak Signal-to-Noise Ratio.
 
     Args:
         mse: Mean Square Error
+        max_pixel: Peak signal value of the source image
+            (255 for 8-bit, 65535 for 16-bit; see peak_signal_value())
 
     Returns:
         float: Peak Signal-to-Noise Ratio in dB
     """
     if mse == 0:
         return float('inf')
-    max_pixel = 255.0
     return 20 * np.log10(max_pixel / np.sqrt(mse))
 
 
-def calculate_ssim(orig_array: np.ndarray, conv_array: np.ndarray) -> float:
+def _window_means(array: np.ndarray, size: int) -> np.ndarray:
     """
-    Calculate Structural Similarity Index.
+    Compute the mean of every size x size window (valid positions only)
+    using integral images, so no SciPy dependency is needed.
+
+    Args:
+        array: 2D float64 array
+        size: Window side length
+
+    Returns:
+        np.ndarray: Array of window means
+    """
+    integral = np.cumsum(np.cumsum(array, axis=0, dtype=np.float64), axis=1)
+    integral = np.pad(integral, ((1, 0), (1, 0)), mode='constant')
+    window_sums = (
+        integral[size:, size:] - integral[:-size, size:]
+        - integral[size:, :-size] + integral[:-size, :-size]
+    )
+    return window_sums / (size * size)
+
+
+def calculate_ssim(
+    orig_array: np.ndarray,
+    conv_array: np.ndarray,
+    win_size: int = 7
+) -> float:
+    """
+    Calculate the Structural Similarity Index (Wang et al. 2004).
+
+    Uses sliding uniform windows (default 7x7) with sample covariance
+    normalization, following the same conventions as
+    skimage.metrics.structural_similarity. Multi-channel images are
+    handled by averaging per-channel SSIM.
 
     Args:
         orig_array: Original image as NumPy array
         conv_array: Converted image as NumPy array
+        win_size: Side length of the sliding window (odd, >= 3)
 
     Returns:
-        float: Structural Similarity Index
+        float: Mean Structural Similarity Index
+
+    Raises:
+        ValueError: If the image shapes do not match
     """
-    # Simplified SSIM calculation
-    c1 = (0.01 * 255) ** 2
-    c2 = (0.03 * 255) ** 2
+    if orig_array.shape != conv_array.shape:
+        raise ValueError(
+            f"Image shapes do not match: {orig_array.shape} vs {conv_array.shape}")
 
-    mean_x = np.mean(orig_array)
-    mean_y = np.mean(conv_array)
-    std_x = np.std(orig_array)
-    std_y = np.std(conv_array)
-    cov = np.mean((orig_array - mean_x) * (conv_array - mean_y))
+    data_range = peak_signal_value(orig_array)
+    c1 = (0.01 * data_range) ** 2
+    c2 = (0.03 * data_range) ** 2
 
-    numerator = (2 * mean_x * mean_y + c1) * (2 * cov + c2)
-    denominator = (
-        (mean_x ** 2 + mean_y ** 2 + c1) *
-        (std_x ** 2 + std_y ** 2 + c2)
-    )
+    orig = orig_array.astype(np.float64)
+    conv = conv_array.astype(np.float64)
 
-    return numerator / denominator
+    # Treat 2D images as single-channel
+    if orig.ndim == 2:
+        orig = orig[:, :, np.newaxis]
+        conv = conv[:, :, np.newaxis]
+
+    # Shrink the window for very small images (keep it odd and >= 1)
+    min_side = min(orig.shape[0], orig.shape[1])
+    if win_size > min_side:
+        win_size = min_side if min_side % 2 == 1 else min_side - 1
+    if win_size < 1:
+        win_size = 1
+
+    n_pixels = win_size * win_size
+    # Sample covariance normalization, as used by scikit-image
+    cov_norm = n_pixels / (n_pixels - 1) if n_pixels > 1 else 1.0
+
+    channel_ssims = []
+    for ch in range(orig.shape[2]):
+        x = orig[:, :, ch]
+        y = conv[:, :, ch]
+
+        ux = _window_means(x, win_size)
+        uy = _window_means(y, win_size)
+        uxx = _window_means(x * x, win_size)
+        uyy = _window_means(y * y, win_size)
+        uxy = _window_means(x * y, win_size)
+
+        vx = cov_norm * (uxx - ux * ux)
+        vy = cov_norm * (uyy - uy * uy)
+        vxy = cov_norm * (uxy - ux * uy)
+
+        ssim_map = (
+            ((2 * ux * uy + c1) * (2 * vxy + c2)) /
+            ((ux ** 2 + uy ** 2 + c1) * (vx + vy + c2))
+        )
+        channel_ssims.append(np.mean(ssim_map))
+
+    return float(np.mean(channel_ssims))
 
 
 def get_memory_usage_mb() -> float:

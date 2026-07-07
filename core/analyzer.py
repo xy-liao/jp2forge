@@ -13,7 +13,7 @@ from PIL import Image
 from typing import Dict, Any, Optional, Tuple
 
 from core.types import AnalysisResult, WorkflowStatus
-from utils.image import calculate_mse, calculate_psnr, calculate_ssim
+from utils.image import calculate_mse, calculate_psnr, calculate_ssim, peak_signal_value
 
 logger = logging.getLogger(__name__)
 
@@ -67,16 +67,22 @@ class ImageAnalyzer:
             with Image.open(converted_path) as conv_img:
                 conv_array = np.array(conv_img)
 
-            # Calculate metrics
+            # Calculate metrics using the peak value of the source bit depth
+            max_pixel = peak_signal_value(orig_array)
             mse = calculate_mse(orig_array, conv_array)
-            psnr = calculate_psnr(mse)
+            psnr = calculate_psnr(mse, max_pixel)
             ssim = calculate_ssim(orig_array, conv_array)
+
+            # The MSE threshold is defined on the 8-bit scale; normalize the
+            # measured MSE to its 8-bit equivalent so 16-bit sources are
+            # judged against the same relative error level
+            mse_8bit_equivalent = mse * (255.0 / max_pixel) ** 2
 
             # Check if quality thresholds are met
             quality_passed = (
                 psnr >= self.psnr_threshold and
                 ssim >= self.ssim_threshold and
-                mse <= self.mse_threshold
+                mse_8bit_equivalent <= self.mse_threshold
             )
 
             # Create result
