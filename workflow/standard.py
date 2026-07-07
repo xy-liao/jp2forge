@@ -249,10 +249,33 @@ class StandardWorkflow(BaseWorkflow):
 
         # Original code for single page images
         try:
+            # Honor skip_existing/overwrite for the deterministic output
+            # name, mirroring the multi-page path; otherwise fall back to
+            # collision-renaming via get_output_path
+            base_name = os.path.splitext(os.path.basename(input_file))[0]
+            deterministic_path = os.path.join(
+                self.config.output_dir, f"{base_name}.jp2")
+
+            if (getattr(self.config, 'skip_existing', False)
+                    and os.path.exists(deterministic_path)):
+                logger.info(
+                    f"Skipping {input_file}: output file already exists")
+                return ProcessingResult(
+                    status=WorkflowStatus.SUCCESS,
+                    input_file=input_file,
+                    output_file=deterministic_path,
+                    metrics={"skipped": True,
+                             "reason": "Output file already exists"}
+                )
+
             # Step 1: Convert to JPEG2000
             with profile_block("conversion_to_jp2"):
                 logger.info("Step 1: Converting to JPEG2000")
-                output_file = get_output_path(input_file, self.config.output_dir, ".jp2")
+                if getattr(self.config, 'overwrite', False):
+                    output_file = deterministic_path
+                else:
+                    output_file = get_output_path(
+                        input_file, self.config.output_dir, ".jp2")
 
                 processing_start = time.time()
 
