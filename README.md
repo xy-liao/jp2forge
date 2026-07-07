@@ -84,7 +84,7 @@ This test script validates JP2Forge by processing images in three different scen
 - **Multiple Compression Modes**: Lossless, lossy, supervised, and BnF-compliant
 - **BnF Standards Support**: Fixed ratios, standard parameters, XMP metadata in UUID box
 - **Advanced Parallel Processing**: High-throughput persistent worker pool with resource monitoring
-- **Memory-Efficient Processing**: Handles large files via single-pass crop-and-paste chunking
+- **Chunked Decoding**: Large files are decoded incrementally in row chunks (note: encoding still assembles the full image in memory once)
 - **Multi-page Document Support**: Automatic handling of multi-page TIFF files
 - **Quality Analysis**: PSNR, SSIM, and MSE measurements
 
@@ -151,11 +151,12 @@ JP2Forge is production-ready with comprehensive JPEG2000 conversion capabilities
 - Refactored codebase with eliminated code duplication
 - Shared utility modules for better maintainability
 - Enhanced error handling and progress tracking
-- Comprehensive testing infrastructure
+- Automated pytest suite (quality metrics, lossless round-trips, BnF
+  ratio targets, XMP embedding) run in CI
 - Publication-ready codebase structure
 
 **🔄 Ongoing Development:**
-- Comprehensive unit test coverage expansion
+- Test coverage expansion
 - Performance optimization for large datasets
 - Docker containerization support
 - Extended BnF validation features
