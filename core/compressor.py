@@ -281,6 +281,12 @@ class JPEG2000Compressor:
                 "tile_size": (1024, 1024),  # BnF uses 1024x1024 tiles
             })
 
+        # Rate/quality layers force the encoder to discard data to hit the
+        # target rates, even with the reversible wavelet — a truly lossless
+        # file must not set them
+        if lossless:
+            return params
+
         if doc_type == DocumentType.PHOTOGRAPH:
             params.update({
                 "quality_mode": "rates",
@@ -378,8 +384,9 @@ class JPEG2000Compressor:
                     "num_resolutions": max_res,
                     "progression": self.progression_order,
                     "irreversible": not lossless,
-                    "quality_mode": "rates",
                 }
+                if not lossless:
+                    params["quality_mode"] = "rates"
 
                 # Add BnF robustness markers if requested
                 if include_bnf_markers:
