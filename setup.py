@@ -35,10 +35,10 @@ setup(
         "numpy>=1.20.0",
         "pillow>=9.0.0",
         "psutil>=5.8.0",
-        "structlog>=21.1.0",
         "lxml>=4.9.0",
         "pyyaml>=6.0",
         "jpylyzer>=2.2.0",
+        "defusedxml>=0.7.0",
     ],
     extras_require={
         "benchmarking": [

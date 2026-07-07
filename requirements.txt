@@ -4,7 +4,6 @@
 pillow>=9.0.0       # Image processing library
 numpy>=1.20.0      # Numerical operations
 psutil>=5.8.0      # System resource monitoring
-structlog>=21.1.0  # Enhanced structured logging
 lxml>=4.9.0        # XML processing for metadata
 pyyaml>=6.0        # YAML configuration support
 jpylyzer>=2.2.0    # JPEG2000 validation tool
