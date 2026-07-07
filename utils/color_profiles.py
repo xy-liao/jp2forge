@@ -189,6 +189,11 @@ def normalize_colorspace(image: Image.Image) -> Tuple[Image.Image, Optional[byte
             # Grayscale modes are fine
             return image, original_profile
 
+        elif mode in ['I;16', 'I;16L', 'I;16B', 'I;16N']:
+            # 16-bit grayscale: Pillow's JPEG2000 encoder handles these
+            # natively — converting would destroy bit depth
+            return image, original_profile
+
         elif mode == 'P':
             # Palette mode, convert to RGB
             logger.info("Converting palette image to RGB")
