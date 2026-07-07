@@ -176,7 +176,8 @@ class JPEG2000Compressor:
         output_file: str,
         doc_type: DocumentType,
         lossless: bool,
-        rows_per_chunk: int
+        rows_per_chunk: int,
+        params_override: Optional[dict] = None
     ) -> bool:
         """
         Convert large image to JPEG2000 by processing in chunks.
@@ -187,6 +188,8 @@ class JPEG2000Compressor:
             doc_type: Type of document being processed
             lossless: Whether to use lossless compression
             rows_per_chunk: Number of rows to process at once
+            params_override: Compression parameters to use instead of the
+                document-type defaults (used by the BnF path)
 
         Returns:
             bool: True if conversion successful
@@ -230,7 +233,11 @@ class JPEG2000Compressor:
                     gc.collect()
 
                 # Configure compression parameters
-                params = self._get_compression_params(doc_type, lossless, img_size=(width, height))
+                if params_override is not None:
+                    params = params_override
+                else:
+                    params = self._get_compression_params(
+                        doc_type, lossless, img_size=(width, height))
 
                 # Save merged image once to final destination
                 merged_img.save(output_file, format="JPEG2000", **params)
@@ -342,6 +349,12 @@ class JPEG2000Compressor:
             # Get BnF compression ratio for document type
             target_ratio = BnFCompressionRatio.get_ratio_for_type(doc_type)
 
+            with Image.open(input_file) as probe:
+                img_size = probe.size
+
+            params = self._get_bnf_compression_params(
+                img_size, lossless, target_ratio, include_bnf_markers)
+
             # Check if we need to process in chunks
             from utils.image import should_process_in_chunks
             should_chunk, chunk_size = should_process_in_chunks(input_file, self.memory_limit_mb)
@@ -353,81 +366,88 @@ class JPEG2000Compressor:
                     output_file,
                     doc_type,
                     lossless,
-                    chunk_size or self.chunk_size
+                    chunk_size or self.chunk_size,
+                    params_override=params
+                )
+            else:
+                # Otherwise use Pillow with BnF-compliant settings
+                with Image.open(input_file) as img:
+                    # Ensure color profile is compatible with JPEG2000
+                    from utils.color_profiles import ensure_jp2_compatible_profile
+                    img = ensure_jp2_compatible_profile(img)
+
+                    # Save with BnF-compliant parameters
+                    img.save(output_file, format="JPEG2000", **params)
+                success = True
+
+            # Check if compression ratio is within acceptable range
+            if success and not lossless:
+                ratio_ok = self._check_compression_ratio(
+                    input_file,
+                    output_file,
+                    target_ratio,
+                    compression_ratio_tolerance
                 )
 
-                # Check compression ratio if successful
-                if success and not lossless:
-                    ratio_ok = self._check_compression_ratio(
-                        input_file,
-                        output_file,
-                        target_ratio,
-                        compression_ratio_tolerance
-                    )
+                if not ratio_ok:
+                    logger.warning(
+                        f"Compression ratio outside acceptable range for {input_file}")
+                    return False
 
-                    if not ratio_ok:
-                        logger.warning(
-                            f"Compression ratio outside acceptable range for {input_file}")
-                        return False
-
-                return success
-
-            # Otherwise use Pillow with BnF-compliant settings
-            with Image.open(input_file) as img:
-                # Ensure color profile is compatible with JPEG2000
-                from utils.color_profiles import ensure_jp2_compatible_profile
-                img = ensure_jp2_compatible_profile(img)
-
-                # Get basic parameters
-                max_res = min(self.num_resolutions, max(1, int(math.log2(min(img.size)))))
-                params = {
-                    "num_resolutions": max_res,
-                    "progression": self.progression_order,
-                    "irreversible": not lossless,
-                }
-                if not lossless:
-                    params["quality_mode"] = "rates"
-
-                # Add BnF robustness markers if requested
-                if include_bnf_markers:
-                    # Note: Pillow doesn't directly support SOP, EPH, PLT markers
-                    # but we'll add what we can through parameters
-                    params.update({
-                        "codeblock_size": (64, 64),  # BnF uses 64x64 codeblocks
-                        "tile_size": (1024, 1024),  # BnF uses 1024x1024 tiles
-                    })
-
-                # Make a best effort to target the correct compression ratio
-                if not lossless:
-                    if doc_type == DocumentType.PHOTOGRAPH or doc_type == DocumentType.HERITAGE_DOCUMENT:
-                        params["quality_layers"] = [80, 60, 40, 20]
-                    elif doc_type == DocumentType.COLOR:
-                        params["quality_layers"] = [70, 50, 30, 15]
-                    elif doc_type == DocumentType.GRAYSCALE:
-                        params["quality_layers"] = [60, 40, 20]
-
-                # Save with BnF-compliant parameters
-                img.save(output_file, format="JPEG2000", **params)
-
-                # Check if compression ratio is within acceptable range
-                if not lossless:
-                    ratio_ok = self._check_compression_ratio(
-                        input_file,
-                        output_file,
-                        target_ratio,
-                        compression_ratio_tolerance
-                    )
-
-                    if not ratio_ok:
-                        logger.warning(
-                            f"Compression ratio outside acceptable range for {input_file}")
-                        return False
-
-                return True
+            return success
 
         except Exception as e:
             logger.error(f"Error in BnF compliant conversion: {str(e)}")
             return False
+
+    def _get_bnf_compression_params(
+        self,
+        img_size: Tuple[int, int],
+        lossless: bool,
+        target_ratio: float,
+        include_bnf_markers: bool
+    ) -> dict:
+        """Build compression parameters for BnF-compliant encoding.
+
+        Args:
+            img_size: Image size tuple (width, height)
+            lossless: Whether to use lossless compression
+            target_ratio: BnF target compression ratio (e.g. 4.0 for 1:4)
+            include_bnf_markers: Whether to include BnF robustness markers
+
+        Returns:
+            dict: Compression parameters
+        """
+        max_res = min(self.num_resolutions, max(1, int(math.log2(min(img_size)))))
+        params = {
+            "num_resolutions": max_res,
+            "progression": self.progression_order,
+            "irreversible": not lossless,
+        }
+
+        # Add BnF robustness markers if requested
+        if include_bnf_markers:
+            # Note: Pillow doesn't directly support SOP, EPH, PLT markers
+            # but we'll add what we can through parameters
+            params.update({
+                "codeblock_size": (64, 64),  # BnF uses 64x64 codeblocks
+                "tile_size": (1024, 1024),  # BnF uses 1024x1024 tiles
+            })
+
+        if not lossless:
+            # Quality layers converging on the BnF target ratio; the final
+            # layer's rate determines the overall file size, so it must be
+            # the target itself (the old fixed lists ended at 20:1 and made
+            # every 4:1 ratio check fail)
+            params["quality_mode"] = "rates"
+            params["quality_layers"] = [
+                target_ratio * 8,
+                target_ratio * 4,
+                target_ratio * 2,
+                target_ratio,
+            ]
+
+        return params
 
 
     def _is_command_available(self, command: str) -> bool:
@@ -479,14 +499,28 @@ class JPEG2000Compressor:
                 logger.error(f"Compressed file not found: {compressed_file}")
                 return False
 
-            orig_size = os.path.getsize(original_file)
+            # BnF ratios are defined against the uncompressed image data
+            # (and rate allocation in the encoder works the same way), so
+            # measure against raw pixel size rather than the source file
+            # size, which depends on the source's own compression
+            with Image.open(original_file) as img:
+                width, height = img.size
+                num_bands = len(img.getbands())
+                if img.mode in ("I;16", "I;16L", "I;16B", "I;16N"):
+                    bytes_per_band = 2
+                elif img.mode in ("I", "F"):
+                    bytes_per_band = 4
+                else:
+                    bytes_per_band = 1
+            raw_size = width * height * num_bands * bytes_per_band
+
             comp_size = os.path.getsize(compressed_file)
 
             if comp_size == 0:
                 logger.error(f"Compressed file is empty: {compressed_file}")
                 return False
 
-            actual_ratio = orig_size / comp_size
+            actual_ratio = raw_size / comp_size
             min_ratio = target_ratio * (1 - tolerance)
             max_ratio = target_ratio * (1 + tolerance)
 
