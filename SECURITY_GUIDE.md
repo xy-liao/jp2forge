@@ -234,7 +234,7 @@ echo "# Affects: library_name < 2.0.0" >> SECURITY_NOTES.md
 echo "# Mitigation: Input validation prevents exploitation" >> SECURITY_NOTES.md
 
 # 2. Enhance input validation
-# Add extra validation in utils/security.py
+# Add extra validation at the affected call sites (e.g. utils/validation.py)
 
 # 3. Add monitoring
 # Include checks in test suite
