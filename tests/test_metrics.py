@@ -31,7 +31,7 @@ class TestMSE:
 
     def test_identical_is_zero(self):
         a = np.arange(256, dtype=np.uint8).reshape(16, 16)
-        assert calculate_mse(a, a.copy()) == 0.0
+        assert calculate_mse(a, a.copy()) == pytest.approx(0.0, abs=0.0)
 
     def test_16bit_scale(self):
         orig = np.full((32, 32), 1000, dtype=np.uint16)
@@ -59,8 +59,8 @@ class TestPSNR:
             14.15, abs=0.02)
 
     def test_peak_signal_value_dtypes(self):
-        assert peak_signal_value(np.zeros((2, 2), dtype=np.uint8)) == 255.0
-        assert peak_signal_value(np.zeros((2, 2), dtype=np.uint16)) == 65535.0
+        assert peak_signal_value(np.zeros((2, 2), dtype=np.uint8)) == pytest.approx(255.0, abs=0.0)
+        assert peak_signal_value(np.zeros((2, 2), dtype=np.uint16)) == pytest.approx(65535.0, abs=0.0)
 
 
 class TestSSIM:
